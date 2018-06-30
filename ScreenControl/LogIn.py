@@ -20,7 +20,7 @@ class LogInScreen(QtGui.QFrame):
         password = self.ui.password.text()
         Conn = Connection()
         Conn.connect()
-        data = Conn.readData("SELECT * FROM [User] WHERE UserName = ? AND Password = ?", [username, password])
+        data = Conn.readData("SELECT * FROM [UserParam] WHERE UserName = ? AND Password = ?", [username, password])
         if len(data) > 0:
             self.app.main.activeUser = data.loc[0]
             self.app.main.show()

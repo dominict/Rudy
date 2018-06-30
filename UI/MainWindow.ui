@@ -963,6 +963,40 @@ QToolButton#nextPage{
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>searchNames</tabstop>
+  <tabstop>searchAddress</tabstop>
+  <tabstop>searchContacts</tabstop>
+  <tabstop>search</tabstop>
+  <tabstop>reset</tabstop>
+  <tabstop>clientList</tabstop>
+  <tabstop>clientNum</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>firstName</tabstop>
+  <tabstop>middleInitial</tabstop>
+  <tabstop>lastName</tabstop>
+  <tabstop>spouseInfo</tabstop>
+  <tabstop>firstName_2</tabstop>
+  <tabstop>middleInitial_2</tabstop>
+  <tabstop>lastName_2</tabstop>
+  <tabstop>addr1</tabstop>
+  <tabstop>addr2</tabstop>
+  <tabstop>city</tabstop>
+  <tabstop>state</tabstop>
+  <tabstop>zipcode</tabstop>
+  <tabstop>phone1</tabstop>
+  <tabstop>phone2</tabstop>
+  <tabstop>email</tabstop>
+  <tabstop>notes</tabstop>
+  <tabstop>addMatter</tabstop>
+  <tabstop>matterList</tabstop>
+  <tabstop>addClient</tabstop>
+  <tabstop>saveChanges</tabstop>
+  <tabstop>editClient</tabstop>
+  <tabstop>clearContent</tabstop>
+  <tabstop>prevPage</tabstop>
+  <tabstop>nextPage</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

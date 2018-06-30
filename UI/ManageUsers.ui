@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>556</width>
+    <width>562</width>
     <height>401</height>
    </rect>
   </property>
@@ -48,16 +48,23 @@
       </widget>
      </item>
      <item>
-      <widget class="QListWidget" name="listWidget"/>
+      <widget class="QCheckBox" name="showInactive">
+       <property name="text">
+        <string>Show Inactive UserNames</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QListWidget" name="userList"/>
      </item>
     </layout>
    </item>
    <item row="0" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="add">
+      <widget class="QToolButton" name="newUser">
        <property name="text">
-        <string>Add</string>
+        <string>New</string>
        </property>
        <property name="icon">
         <iconset>
@@ -109,6 +116,13 @@
        </property>
       </spacer>
      </item>
+     <item>
+      <widget class="QToolButton" name="helpme">
+       <property name="text">
+        <string>Help</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item row="1" column="1">
@@ -154,7 +168,11 @@
       </widget>
      </item>
      <item row="3" column="1">
-      <widget class="QLineEdit" name="lastSignin"/>
+      <widget class="QLineEdit" name="lastSignin">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_6">
@@ -178,7 +196,7 @@
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="password">
        <property name="text">
         <string>Reset Password</string>
        </property>

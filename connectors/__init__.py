@@ -7,7 +7,7 @@ def demo(func):
     def initialize(*args, **kwargs): 
         conn = sqlite3.connect('NortonAbert.db')
         cursor = conn.cursor()
-        tables = {'User':['username TEXT',
+        tables = {'UserParam':['username TEXT',
                          'password TEXT',
                          'fullname TEXT',
                          'LastSignedIn DATE',
@@ -70,12 +70,12 @@ def demo(func):
             
         conn.commit()
         
-        cursor.execute("SELECT * FROM User WHERE username = 'Demo'")
+        cursor.execute("SELECT * FROM UserParam WHERE username = 'Demo'")
         row = cursor.fetchone()
         
         if row is None:
             user = ['Demo','Demo','DemonstrationUser','2018-06-30','0','1']
-            cursor.execute("INSERT INTO User VALUES (?,?,?,?,?,?)",user)
+            cursor.execute("INSERT INTO UserParam VALUES (?,?,?,?,?,?)",user)
             conn.commit()
             
         result = func(*args,**kwargs)
