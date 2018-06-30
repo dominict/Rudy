@@ -43,7 +43,7 @@ QLabel#softwareTitle{font: 75 14pt &quot;Microsoft Tai Le&quot;; }
       </font>
      </property>
      <property name="text">
-      <string>Rudy Matters</string>
+      <string>Rudy</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
