@@ -20,7 +20,7 @@ def demo(func):
                                        'EFileDir TEXT',
                                        'DocID INTEGER PRIMARY KEY'
                                        ],
-                  'MatterTypes':['TypeID INTEGER',
+                  'MatterTypes':['TypeID INTEGER PRIMARY KEY',
                                  'MatterDescr TEXT',
                                  'Inactive INTEGER'],
                   'ClientMatters':['ClientNum INTEGER',

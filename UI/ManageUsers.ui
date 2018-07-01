@@ -50,7 +50,7 @@
      <item>
       <widget class="QCheckBox" name="showInactive">
        <property name="text">
-        <string>Show Inactive UserNames</string>
+        <string>Show Inactive User Names</string>
        </property>
       </widget>
      </item>

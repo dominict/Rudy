@@ -1,5 +1,5 @@
 from UI import *
-from Functions import UserFunctions as UsrFuncs, CONN
+from Functions import UserFunctions as UsrFuncs, MatterFunctions as MtrFuncs, CONN
 from PyQt4.Qt import QListWidgetItem
 
 class MatterManager(QtGui.QFrame):
@@ -7,7 +7,121 @@ class MatterManager(QtGui.QFrame):
         QtGui.QFrame.__init__(self)
         self.ui = loadUi(UIDir+"\\ManageMatters.ui", self)
         
+        self.changes = False
+        self.action = None
         
+        for i in dir(self.ui):
+            if i != 'showInactive':
+                exec("self.initializeChangeTracking(self.ui.{})".format(i))
+
+        
+        self.lockFields()
+        self.listMatters()
+        
+        self.ui.showInactive.clicked.connect(self.listMatters)
+        self.ui.matterList.itemClicked.connect(self.loadMatter)
+        self.ui.clear.clicked.connect(self.clearFields)
+        self.ui.save.clicked.connect(self.saveChanges)
+        self.ui.newMatter.clicked.connect(self.addMatter)
+        
+    def initializeChangeTracking(self,widget):
+        if isinstance(widget,QtGui.QLineEdit):
+            widget.textEdited.connect(self.markAsChanged)
+        elif isinstance(widget, QtGui.QCheckBox):
+            widget.clicked.connect(self.markAsChanged)
+            
+    def markAsChanged(self):
+        self.changes = True
+        
+    def listMatters(self):
+        matterTypes = MtrFuncs.listMatters(activeOnly = self.ui.showInactive.checkState() == 0)
+        
+        self.ui.matterList.clear()
+        for i in matterTypes.index:
+            mType = matterTypes.loc[i]
+            matterLabel = QtGui.QLabel(mType.matterdescr)
+            matterLabel.mType = mType
+            item = QListWidgetItem()
+            self.ui.matterList.addItem(item)
+            self.ui.matterList.setItemWidget(item, matterLabel)
+            
+    def loadMatter(self, item):
+        reply = self.checkChangesMade()
+        if reply == 0:
+            self.changes = False
+            mType = self.ui.matterList.itemWidget(item).mType
+            self.unlockFields()
+            self.action = 'update'
+            self.ui.matterDescr.typeid = mType.typeid
+            self.ui.matterDescr.setText(mType.matterdescr)
+            self.ui.inactive.setCheckState(int(mType.inactive) * 2)
+            
+    def clearFields(self):
+        reply = self.checkChangesMade()
+        if reply == 0:
+            self.changes = False
+            self.ui.matterDescr.typeid = None
+            self.ui.matterDescr.clear()
+            self.ui.inactive.setCheckState(0)
+            self.lockFields()
+            
+    def addMatter(self):
+        reply = self.checkChangesMade()
+        if reply == 0:
+            self.clearFields()
+            self.unlockFields()
+            self.action = 'new'
+            
+        
+    def lockFields(self):
+        self.ui.matterDescr.setReadOnly(True)
+        self.ui.inactive.setEnabled(False)
+    
+    def unlockFields(self):
+        self.ui.matterDescr.setReadOnly(False)
+        self.ui.inactive.setEnabled(True)
+        
+    def checkChangesMade(self):
+        if self.changes == True:
+            reply = QtGui.QMessageBox.question(self, "Save Changes?", "Would you like to save you changes?"
+                                               ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
+            if reply == QtGui.QMessageBox.Yes:
+                self.saveChanges()
+                return 0
+            elif reply == QtGui.QMessageBox.Cancel:
+                return 1
+            else:
+                return 0
+        else:   
+            
+            return 0
+        
+    def saveChanges(self):
+        if self.action is not None:
+            if self.ui.matterDescr.text().strip() == '':
+                alert = QtGui.QMessageBox()
+                alert.setWindowTitle("Missing Description")
+                alert.setText("Matter needs a description before saving.")
+                alert.exec_()
+                return
+            else:
+                data = {'action':self.action,
+                        'table':'MatterTypes',
+                        'values':{'MatterDescr':str(self.ui.matterDescr.text()),
+                                  'Inactive':str(int(self.ui.inactive.checkState()/ 2 ) )
+                                  },
+                        'params':{}
+                        }
+                if self.action == 'update':
+                    data['params']['TypeID'] = str(self.ui.matterDescr.typeid)
+                
+                CONN.connect()
+                CONN.saveData(data)
+                CONN.closecnxn()
+                self.changes = False
+                self.clearFields()
+                self.listMatters()
+                
         
 class Password(QtGui.QFrame):
     def __init__(self,usermgr,action):
