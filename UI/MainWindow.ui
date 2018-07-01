@@ -820,7 +820,7 @@ QToolButton#nextPage{
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="saveChanges">
+             <widget class="QToolButton" name="saveClientChanges">
               <property name="text">
                <string>Save</string>
               </property>
@@ -899,7 +899,7 @@ QToolButton#nextPage{
              </widget>
             </item>
             <item>
-             <widget class="QCheckBox" name="checkBox">
+             <widget class="QCheckBox" name="donotrep">
               <property name="text">
                <string>Do Not Represent</string>
               </property>
@@ -971,7 +971,7 @@ QToolButton#nextPage{
   <tabstop>reset</tabstop>
   <tabstop>clientList</tabstop>
   <tabstop>clientNum</tabstop>
-  <tabstop>checkBox</tabstop>
+  <tabstop>donotrep</tabstop>
   <tabstop>firstName</tabstop>
   <tabstop>middleInitial</tabstop>
   <tabstop>lastName</tabstop>
@@ -991,7 +991,7 @@ QToolButton#nextPage{
   <tabstop>addMatter</tabstop>
   <tabstop>matterList</tabstop>
   <tabstop>addClient</tabstop>
-  <tabstop>saveChanges</tabstop>
+  <tabstop>saveClientChanges</tabstop>
   <tabstop>editClient</tabstop>
   <tabstop>clearContent</tabstop>
   <tabstop>prevPage</tabstop>

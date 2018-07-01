@@ -36,7 +36,8 @@ def demo(func):
                                    'BillingZip TEXT',
                                    'DateOpened DATE',
                                    'DateClosed DATE',
-                                   'BoxNumber TEXT'
+                                   'BoxNumber TEXT',
+                                   'AttorneyInitials TEXT'
                                    ],
                   'ClientInfo':['ClientNum INTEGER',
                                 'FirstName TEXT',

@@ -1,4 +1,5 @@
 from UI import *
+from ScreenControl import *
 from Functions import UserFunctions as UsrFuncs, MatterFunctions as MtrFuncs, CONN
 from PyQt4.Qt import QListWidgetItem
 
@@ -12,7 +13,7 @@ class MatterManager(QtGui.QFrame):
         
         for i in dir(self.ui):
             if i != 'showInactive':
-                exec("self.initializeChangeTracking(self.ui.{})".format(i))
+                exec("initializeChangeTracking(self, self.ui.{})".format(i))
 
         
         self.lockFields()
@@ -23,15 +24,7 @@ class MatterManager(QtGui.QFrame):
         self.ui.clear.clicked.connect(self.clearFields)
         self.ui.save.clicked.connect(self.saveChanges)
         self.ui.newMatter.clicked.connect(self.addMatter)
-        
-    def initializeChangeTracking(self,widget):
-        if isinstance(widget,QtGui.QLineEdit):
-            widget.textEdited.connect(self.markAsChanged)
-        elif isinstance(widget, QtGui.QCheckBox):
-            widget.clicked.connect(self.markAsChanged)
             
-    def markAsChanged(self):
-        self.changes = True
         
     def listMatters(self):
         matterTypes = MtrFuncs.listMatters(activeOnly = self.ui.showInactive.checkState() == 0)
@@ -46,7 +39,7 @@ class MatterManager(QtGui.QFrame):
             self.ui.matterList.setItemWidget(item, matterLabel)
             
     def loadMatter(self, item):
-        reply = self.checkChangesMade()
+        reply = checkChangesMade(self)
         if reply == 0:
             self.changes = False
             mType = self.ui.matterList.itemWidget(item).mType
@@ -57,7 +50,7 @@ class MatterManager(QtGui.QFrame):
             self.ui.inactive.setCheckState(int(mType.inactive) * 2)
             
     def clearFields(self):
-        reply = self.checkChangesMade()
+        reply = checkChangesMade(self)
         if reply == 0:
             self.changes = False
             self.ui.matterDescr.typeid = None
@@ -66,7 +59,7 @@ class MatterManager(QtGui.QFrame):
             self.lockFields()
             
     def addMatter(self):
-        reply = self.checkChangesMade()
+        reply = checkChangesMade(self)
         if reply == 0:
             self.clearFields()
             self.unlockFields()
@@ -81,20 +74,6 @@ class MatterManager(QtGui.QFrame):
         self.ui.matterDescr.setReadOnly(False)
         self.ui.inactive.setEnabled(True)
         
-    def checkChangesMade(self):
-        if self.changes == True:
-            reply = QtGui.QMessageBox.question(self, "Save Changes?", "Would you like to save you changes?"
-                                               ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
-            if reply == QtGui.QMessageBox.Yes:
-                self.saveChanges()
-                return 0
-            elif reply == QtGui.QMessageBox.Cancel:
-                return 1
-            else:
-                return 0
-        else:   
-            
-            return 0
         
     def saveChanges(self):
         if self.action is not None:
@@ -175,7 +154,7 @@ class UserManager(QtGui.QFrame):
 
         for i in dir(self.ui):
             if i != 'showInactive':
-                exec("self.initializeChangeTracking(self.ui.{})".format(i))
+                exec("initializeChangeTracking(self,self.ui.{})".format(i))
 
         self.changes = False
         self.lockFields()
@@ -187,12 +166,6 @@ class UserManager(QtGui.QFrame):
         self.ui.password.clicked.connect(self.setPassword)
         self.ui.userList.itemClicked.connect(self.loadUserDetails)
         self.ui.showInactive.clicked.connect(self.listUsers)
-    
-    def initializeChangeTracking(self,widget):
-        if isinstance(widget,QtGui.QLineEdit):
-            widget.textEdited.connect(self.markAsChanged)
-        elif isinstance(widget, QtGui.QCheckBox):
-            widget.clicked.connect(self.markAsChanged)
     
     def lockFields(self,):
             
@@ -226,23 +199,7 @@ class UserManager(QtGui.QFrame):
         self.pwdWindow = Password(self,self.action)
         self.pwdWindow.show()
     
-    def saveChangesCheck(self):
-        if self.changes == True:
-            reply = QtGui.QMessageBox.question(self, "Save Changes?", "Would you like to save you changes?"
-                                               ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
-            if reply == QtGui.QMessageBox.Yes:
-                self.saveChanges()
-                return 0
-            elif reply == QtGui.QMessageBox.Cancel:
-                return 1
-            else:
-                return 0
-        else:   
             
-            return 0
-            
-    def markAsChanged(self):
-        self.changes = True
     
     def startNewUser(self):
         self.clearFields()
@@ -251,7 +208,7 @@ class UserManager(QtGui.QFrame):
         self.action = 'new'
     
     def clearFields(self):
-        reply = self.saveChangesCheck()
+        reply = checkChangesMade(self)
         if reply == 0:
             self.lockFields()
             self.ui.username.clear()
@@ -320,7 +277,7 @@ class UserManager(QtGui.QFrame):
         self.listUsers()
         
     def loadUserDetails(self,item):
-        reply = self.saveChangesCheck()
+        reply = checkChangesMade(self)
         if reply == 0:
             
             self.clearFields()
