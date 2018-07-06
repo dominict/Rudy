@@ -30,7 +30,7 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.editClient.clicked.connect(self.editUser)
         self.ui.saveClientChanges.clicked.connect(self.saveChanges)
         self.ui.clientList.cellClicked.connect(self.loadClient)
-        self.ui.addMatter.clicked.connect(self.openMatterWindow)
+        self.ui.addMatter.clicked.connect(partial(self.openMatterWindow, None))
         
         
     def lockFields(self):
@@ -241,7 +241,7 @@ class MainMatterScreen(QtGui.QMainWindow):
             viewMatter = QtGui.QToolButton()
             viewMatter.setText('View')
             viewMatter.clicked.connect(partial(self.openMatterWindow, data))
-            
+            print(data)
             cols = [matterLabel,
                     QtGui.QLabel(data.matterdescr),
                     QtGui.QLabel(data.attorneyinitials),

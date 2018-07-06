@@ -48,6 +48,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QCheckBox" name="showInactive">
+       <property name="text">
+        <string>Show Inactive User Names</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QListWidget" name="matterList"/>
      </item>
     </layout>
