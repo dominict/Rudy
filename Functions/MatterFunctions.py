@@ -63,3 +63,23 @@ def findMatter(matternum):
     CONN.closecnxn()
     
     return data
+
+def generateAdverPartyList(clientnum,matternum):
+    q = "SELECT * FROM AdverseParties WHERE ClientNum = ? AND MatterNum = ?"
+    v = [str(clientnum),str(matternum)]
+    CONN.connect()
+    data = CONN.readData(q,v)
+    CONN.closecnxn()
+    
+    for r, i in enumerate(data.index):
+        yield r, data.loc[i]
+        
+def generateDocumentList(clientnum, matternum):
+    q = "SELECT * FROM OriginalDocuments WHERE ClientNum = ? AND MatterNum = ?"
+    v = [str(clientnum),str(matternum)]
+    CONN.connect()
+    data = CONN.readData(q,v)
+    CONN.closecnxn()
+    
+    for r, i in enumerate(data.index):
+        yield r, data.loc[i]

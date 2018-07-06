@@ -3,6 +3,7 @@ from Functions import MatterFunctions as MtrFuncs,CONN, ClientFunctions as ClntF
 from ScreenControl import *
 
 from datetime import datetime as dt
+from subprocess import Popen
 
 class ClientMatter(QtGui.QMainWindow):
     def __init__(self, client, clientnum, matter = None):
@@ -21,6 +22,12 @@ class ClientMatter(QtGui.QMainWindow):
         self.ui.dateClosed.setSpecialValueText('Not Closed')
         self.ui.dateClosed.setDate(self.ui.dateClosed.minimumDate())
         self.ui.useClientAddress.clicked.connect(self.populateClientAddress)
+        self.ui.apClear.clicked.connect(self.clearPartyFields)
+        self.ui.apSave.clicked.connect(self.saveAdverseParty)
+        self.ui.apDelete.clicked.connect(self.removeAdverseParty)
+        self.ui.apNew.clicked.connect(self.addAdverseParty)
+        
+        self.ui.partyList.cellClicked.connect(self.viewAdverseParty)
         
         self.listMatterTypes()
         self.loadStates()
@@ -32,7 +39,7 @@ class ClientMatter(QtGui.QMainWindow):
             self.loadMatter()
             
         for i in dir(self.ui):
-                exec("initializeChangeTracking(self,self.ui.{})".format(i))
+                exec("if {} not in ['apFirst','apLast', 'apMiddle', 'reason']: initializeChangeTracking(self,self.ui.{})".format(i,i))
         
         self.ui.actionClose.triggered.connect(self.closeWindow)
         self.ui.actionEdit.triggered.connect(self.editMatter)
@@ -62,12 +69,150 @@ class ClientMatter(QtGui.QMainWindow):
         self.unlockWindow()
         
         self.ui.clientNum.setReadOnly(False)
+        self.ui.attachDocument.setEnabled(False)
+        self.ui.apSave.setEnabled(False)
+        self.ui.apDelete.setEnabled(False)
+        self.ui.apClear.setEnabled(False)
         
     def loadMatter(self):
+        self.lockWindow()
         self.ui.clientNum.setText(str(self.matter.clientnum))
         self.ui.matterNum.setText(str(self.matter.matternum))
         
+        self.ui.attorneyInitials.setText(self.matter.attorneyinitials)
+        matterindex = self.ui.matterType.findData(int(self.matter.mattertypeid))
+        if matterindex > 0:
+            self.ui.matterType.setCurrentIndex(matterindex)
+            
+        self.ui.dateOpened.setDate(QtCore.QDate(dt.strptime(str(self.matter.dateopened),"%Y-%m-%d")))
+        if self.matter.dateclosed is not None:
+            self.ui.dateClosed.setDate(QtCore.QDate(dt.strptime(str(self.matter.dateclosed),"%Y-%m-%d")))
+            self.ui.boxNumber.setText(self.matter.boxnumber)
+        else:
+            self.ui.dateClosed.setDate(self.ui.dateClosed.minimumDate())
+            
+        self.ui.firstName.setText(self.matter.firstname)
+        self.ui.lastName.setText(self.matter.lastname)
+        self.ui.middleInitial.setText(self.matter.middleinitial)
+        self.ui.addr1.setText(self.matter.billingaddr1)
+        self.ui.addr2.setText(self.matter.billingaddr2)
+        self.ui.billCity.setText(self.matter.billingcity)
         
+        stateindex = self.ui.billState.findData(self.matter.billingstate)
+        if stateindex > 0:
+            self.ui.billState.setCurrentIndex(stateindex)
+        
+        self.ui.billZip.setText(self.matter.billingzip)
+        
+        
+        self.ui.attachDocument.setEnabled(True)
+        self.ui.apSave.setEnabled(True)
+        self.ui.apDelete.setEnabled(True)
+        self.ui.apClear.setEnabled(True)
+        self.ui.apNew.setEnabled(True)
+        
+        self.listDocuments()
+        self.listAdverseParties()
+        
+    def listDocuments(self):
+        """Listing Documents here"""
+    
+    def attachDocument(self):
+        filename = QtGui.QFileDialog()
+        
+    def listAdverseParties(self):
+        self.clearPartyFields()
+        self.ui.partyList.setRowCount(0)
+        
+        for r, party in MtrFuncs.generateAdverPartyList(self.ui.clientNum.text(), self.ui.matterNum.text()):
+            self.ui.partyList.insertRow(r)
+            self.ui.partyList.setRowHeight(r,20)
+            firstnamelabel = QtGui.QLabel(party.firstname)
+            firstnamelabel.partyid = party.partyid
+            cols = [firstnamelabel,
+                    QtGui.QLabel(party.middlename),
+                    QtGui.QLabel(party.lastname),
+                    QtGui.QLabel(party.reasondescription)]
+            
+            populateTableRow(self.ui.partyList, r, cols)
+    
+    def addAdverseParty(self):
+        self.ui.apFirst.action = 'new'
+        self.ui.apFirst.setReadOnly(False)
+        self.ui.apMiddle.setReadOnly(False)
+        self.ui.apLast.setReadOnly(False)
+        self.ui.reason.setReadOnly(False)
+        
+        self.ui.apDelete.setEnabled(False)
+    
+    def viewAdverseParty(self,row,col):
+        firstnamelabel = self.ui.partyList.cellWidget(row,0)
+        partyid = firstnamelabel.partyid
+        self.ui.apFirst.setText(firstnamelabel.text())
+        self.ui.apFirst.action = 'update'
+        self.ui.apFirst.partyid = partyid
+        
+        self.ui.apMiddle.setText(self.ui.partyList.cellWidget(row,1).text())
+        self.ui.apLast.setText(self.ui.partyList.cellWidget(row,2).text())
+        self.ui.reason.setText(self.ui.partyList.cellWidget(row,3).text())
+        
+        self.ui.apFirst.setReadOnly(False)
+        self.ui.apMiddle.setReadOnly(False)
+        self.ui.apLast.setReadOnly(False)
+        self.ui.reason.setReadOnly(False)
+        
+        self.ui.apDelete.setEnabled(True)
+    
+    def removeAdverseParty(self):
+        if self.ui.apFirst.partyid is not None:
+            self.ui.apFirst.action = 'delete'
+            self.saveAdverseParty()
+        
+    def saveAdverseParty(self):
+        firstname = self.ui.apFirst.text()
+        lastname = self.ui.apLast.text()
+        middleinitial = self.ui.apMiddle.text()
+        reasonGiven = self.ui.reason.text()
+        
+        action = self.ui.apFirst.action
+        
+        if action is not None:
+            partyid = self.ui.apFirst.partyid
+            data = {'action':action,
+                    'table':'AdverseParties',
+                    'values':{'FirstName':firstname,
+                              'LastName':lastname,
+                              'MiddleName':middleinitial,
+                              'ReasonDescription':reasonGiven},
+                    'params':{}
+                    }
+        
+            if action == 'new':
+                key = 'values'
+            else:
+                key = 'params'
+                data[key]['PartyID'] = partyid
+            data[key]['ClientNum'] = self.ui.clientNum.text()
+            data[key]['MatterNum'] = self.ui.matterNum.text()
+            
+            CONN.connect()
+            CONN.saveData(data)
+            CONN.closecnxn()
+            
+            self.listAdverseParties()
+    
+    def clearPartyFields(self):
+        self.ui.apFirst.clear()
+        self.ui.apFirst.action = None
+        self.ui.apFirst.partyid = None
+        self.ui.apLast.clear()
+        self.ui.apMiddle.clear()
+        self.ui.reason.clear()
+        
+        self.ui.apFirst.setReadOnly(True)
+        self.ui.apMiddle.setReadOnly(True)
+        self.ui.apLast.setReadOnly(True)
+        self.ui.reason.setReadOnly(True)
             
     def editMatter(self ):
         reply = checkChangesMade(self)
@@ -144,6 +289,13 @@ class ClientMatter(QtGui.QMainWindow):
         alert.setWindowTitle("Save")
         alert.exec_()
         
+        self.ui.attachDocument.setEnabled(True)
+        self.ui.apSave.setEnabled(True)
+        self.ui.apNew.setEnabled(True)
+        self.ui.apClear.setEnabled(True)
+        
+        self.client.listMatters(self.clientnum)
+        
     def populateClientAddress(self):
         clientInfo = ClntFuncs.getClientInfo(self.clientnum)
         
@@ -165,7 +317,7 @@ class ClientMatter(QtGui.QMainWindow):
         self.ui.matterType.addItem("")
         for i, m in enumerate(matterTypes.index):
             self.ui.matterType.addItem(matterTypes.matterdescr[m])
-            self.ui.matterType.setItemData(i+1, matterTypes.typeid[m])
+            self.ui.matterType.setItemData(i+1, int(matterTypes.typeid[m]))
             
     def loadStates(self ):
         

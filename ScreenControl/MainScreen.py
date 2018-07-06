@@ -102,6 +102,7 @@ class MainMatterScreen(QtGui.QMainWindow):
             self.ui.notes.clear()
             self.ui.spouseInfo.setEnabled(False)
             self.ui.donotrep.setCheckState(0)
+            self.ui.matterList.setRowCount(0)
             
             self.lockFields()
 

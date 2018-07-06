@@ -57,12 +57,12 @@ def demo(func):
                                 'Email TEXT',
                                 'DoNotRep INTEGER',
                                 'Notes TEXT'],
-                  'AdversParties':['ClientNum INTEGER',
+                  'AdverseParties':['ClientNum INTEGER',
                                    'MatterNum TEXT',
                                    'FirstName TEXT',
-                                   'LastName TEXT'
-                                   'MiddleName TEXT'
-                                   'ReasonDescription TEXT'
+                                   'LastName TEXT',
+                                   'MiddleName TEXT',
+                                   'ReasonDescription TEXT',
                                    'PartyID INTEGER PRIMARY KEY']}
         for table in tables.keys():
             cols = ','.join(tables[table]).lower()
