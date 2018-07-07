@@ -4,6 +4,7 @@ from ScreenControl import *
 from ScreenControl import ClientMatters
 from Functions import CONN, ClientFunctions as ClntFuncs, MatterFunctions as MtrFuncs
 from functools import partial
+from difflib import get_close_matches
 
 class MainMatterScreen(QtGui.QMainWindow):
     def __init__(self, app):
@@ -20,8 +21,8 @@ class MainMatterScreen(QtGui.QMainWindow):
         
         
         for i in dir(self.ui):
-            if i != 'showInactive':
-                exec("if i not in ['searchNames','searchAddress','searchContacts']: initializeChangeTracking(self,self.ui.{})".format(i))
+            if i != 'showInactive' and i not in ['searchFirst','searchLast','searchAddr', 'searchCity','searchState','searchContacts']: 
+                exec("initializeChangeTracking(self,self.ui.{})".format(i))
         
         self.ui.actionManage_Matter_Types.triggered.connect(partial( self.openManager, MatterManager))
         self.ui.actionManage_Users.triggered.connect(partial(self.openManager, UserManager))
@@ -31,7 +32,17 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.saveClientChanges.clicked.connect(self.saveChanges)
         self.ui.clientList.cellClicked.connect(self.loadClient)
         self.ui.addMatter.clicked.connect(partial(self.openMatterWindow, None))
+        self.ui.reset.clicked.connect(self.resetFilters)
+        self.ui.search.clicked.connect(self.listClients)
         
+    def resetFilters(self):
+        self.ui.searchFirst.clear()
+        self.ui.searchLast.clear()
+        self.ui.searchAddr.clear()
+        self.ui.searchCity.clear()
+        self.ui.searchState.clear()
+        self.ui.searchContacts.clear()
+        self.listClients()
         
     def lockFields(self):
         self.ui.clientNum.setReadOnly(True)
@@ -125,9 +136,33 @@ class MainMatterScreen(QtGui.QMainWindow):
             self.ui.saveClientChanges.setEnabled(True)
             self.ui.addMatter.setEnabled(False)
             
+    def checkName(self):
+        apData = ClntFuncs.compileAdversePartyList()
+        partyFullNames = apData.fullname.values
+        
+        clientName = "{} {} {}".format( self.ui.firstName.text(), self.ui.middleInitial.text(), self.ui.lastName.text())
+        closeNames = get_close_matches(clientName, partyFullNames)
+        if self.ui.spouseInfo.isChecked():
+            spouseName = "{} {} {}".format( self.ui.firstName_2.text(), self.ui.middleInitial_2.text(), self.ui.lastName_2.text())
+            closeNames.extend(get_close_matches(spouseName, partyFullNames, n = 5, cutoff = .5))
+        if len(closeNames) > 0:
+            print(closeNames)
+            names = "\n".join(closeNames)
+            reply = QtGui.QMessageBox.question(self, "Matching Names?", "The following names are possible adverse party matches to this new client. \n{}\nDo you want to save this new client still?".format(names)
+                                               ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
+            
+            if reply == QtGui.QMessageBox.Yes:
+                return False
+            else:
+                return True
+        else:
+            return False
+            
     def saveChanges(self):
         
         if self.action is not None:
+            if self.checkName():
+                return
             if self.ui.clientNum.text().strip() == '':
                 alert = QtGui.QMessageBox()
                 alert.setWindowTitle('Missing Client #')
@@ -176,15 +211,24 @@ class MainMatterScreen(QtGui.QMainWindow):
                 self.ui.addMatter.setEnabled(True)
                 
     def listClients(self):
-        nameFilters = self.ui.searchNames.text()
-        addrFilters = self.ui.searchAddress.text()
+        firstNames = self.ui.searchFirst.text()
+        lastNames = self.ui.searchLast.text()
+        addrFilter = self.ui.searchAddr.text()
+        cityFilter = self.ui.searchCity.text()
+        stateFilter = self.ui.searchState.text()
         contactFilters = self.ui.searchContacts.text()
+        
+        cws = [60,115,125,75,35,50]
+        for c, w in enumerate(cws):
+            self.ui.clientList.setColumnWidth(c,w)
         
         self.ui.clientList.setRowCount(0)
         
-        for r, data in ClntFuncs.listClients(nameFilters, addrFilters, contactFilters):
+        for r, data in ClntFuncs.listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, contactFilters):
             
             self.ui.clientList.insertRow(r)
+            self.ui.clientList.setRowHeight(r,20)
+            
             clientlabel = QtGui.QLabel(str(data.clientnum))
             clientlabel.cdata = data
             cols = [clientlabel,
@@ -242,7 +286,7 @@ class MainMatterScreen(QtGui.QMainWindow):
             viewMatter = QtGui.QToolButton()
             viewMatter.setText('View')
             viewMatter.clicked.connect(partial(self.openMatterWindow, data))
-            print(data)
+
             cols = [matterLabel,
                     QtGui.QLabel(data.matterdescr),
                     QtGui.QLabel(data.attorneyinitials),

@@ -17,6 +17,15 @@ def listMatters(activeOnly = True):
     
     return data
 
+def checkValidMatterNumber(clientnum, matternum):
+    q = "SELECT * FROM ClientMatters WHERE ClientNum = ? AND MatterNum = ?"
+    v = [str(clientnum),str(matternum)]
+    CONN.connect()
+    data = CONN.readData(q,v)
+    CONN.closecnxn()
+    
+    return len(data) > 0
+
 def generateClientMatters(clientnum):
     q = """SELECT  cm.*, mt.matterdescr
             FROM ClientMatters cm 

@@ -4,6 +4,7 @@ from ScreenControl import *
 
 from datetime import datetime as dt
 from subprocess import Popen
+from re import sub
 
 class ClientMatter(QtGui.QMainWindow):
     def __init__(self, client, clientnum, matter = None):
@@ -21,11 +22,6 @@ class ClientMatter(QtGui.QMainWindow):
         self.ui.dateOpened.setDate(QtCore.QDate(dt.today().date()))
         self.ui.dateClosed.setSpecialValueText('Not Closed')
         self.ui.dateClosed.setDate(self.ui.dateClosed.minimumDate())
-        self.ui.useClientAddress.clicked.connect(self.populateClientAddress)
-        self.ui.apClear.clicked.connect(self.clearPartyFields)
-        self.ui.apSave.clicked.connect(self.saveAdverseParty)
-        self.ui.apDelete.clicked.connect(self.removeAdverseParty)
-        self.ui.apNew.clicked.connect(self.addAdverseParty)
         
         self.ui.partyList.cellClicked.connect(self.viewAdverseParty)
         
@@ -39,11 +35,37 @@ class ClientMatter(QtGui.QMainWindow):
             self.loadMatter()
             
         for i in dir(self.ui):
-                exec("if {} not in ['apFirst','apLast', 'apMiddle', 'reason']: initializeChangeTracking(self,self.ui.{})".format(i,i))
+            execStr = """
+widget = self.ui.{}
+if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
+    if (widget not in list([self.ui.apFirst,self.ui.apLast, self.ui.apMiddle, self.ui.reason])): 
+        initializeChangeTracking(self,widget)""".format(i)
+            exec(execStr)
         
         self.ui.actionClose.triggered.connect(self.closeWindow)
         self.ui.actionEdit.triggered.connect(self.editMatter)
         self.ui.actionSave.triggered.connect(self.saveChanges)
+        
+        self.ui.useClientAddress.clicked.connect(self.populateClientAddress)
+        self.ui.matterNum.textChanged.connect(self.formatMatterNumber)
+        
+        self.ui.apClear.clicked.connect(self.clearPartyFields)
+        self.ui.apSave.clicked.connect(self.saveAdverseParty)
+        self.ui.apDelete.clicked.connect(self.removeAdverseParty)
+        self.ui.apNew.clicked.connect(self.addAdverseParty)
+        
+        self.ui.attachDocument.clicked.connect(self.attachDocumentToMatter)
+        
+    def formatMatterNumber(self):
+        currNum = self.ui.matterNum.text()
+        pattern = "[^0-9]"
+        newNum = sub(pattern,"",currNum)
+        if newNum == "":
+            newNum = 0
+        else:
+            newNum = int(newNum)
+        self.ui.matterNum.setText( "00"[:-len(str(newNum))]+str(newNum) )
+        
             
     def lockWindow(self ):
         for i in dir(self.ui):
@@ -73,6 +95,7 @@ class ClientMatter(QtGui.QMainWindow):
         self.ui.apSave.setEnabled(False)
         self.ui.apDelete.setEnabled(False)
         self.ui.apClear.setEnabled(False)
+        self.ui.apNew.setEnabled(False)
         
     def loadMatter(self):
         self.lockWindow()
@@ -106,8 +129,8 @@ class ClientMatter(QtGui.QMainWindow):
         
         
         self.ui.attachDocument.setEnabled(True)
-        self.ui.apSave.setEnabled(True)
-        self.ui.apDelete.setEnabled(True)
+        self.ui.apSave.setEnabled(False)
+        self.ui.apDelete.setEnabled(False)
         self.ui.apClear.setEnabled(True)
         self.ui.apNew.setEnabled(True)
         
@@ -115,10 +138,43 @@ class ClientMatter(QtGui.QMainWindow):
         self.listAdverseParties()
         
     def listDocuments(self):
-        """Listing Documents here"""
+        docList = MtrFuncs.generateDocumentList(self.ui.clientNum.text(), self.ui.matterNum.text())
+        
+        self.ui.documentList.setRowCount(0)
+        for r, data in docList:
+            self.ui.documentList.insertRow(r)
+            
+            viewButton = QtGui.QToolButton()
+            viewButton.setText('View Doc')
+            viewButton.clicked.connect( partial(self.viewAttachment, data.efiledir) )
+            
+            cols = [QtGui.QLabel(str(data.docname))
+                    , QtGui.QLabel(str(data.efiledir))
+                    , viewButton]
+            
+            populateTableRow(self.ui.documentList, r, cols)
+            
     
-    def attachDocument(self):
-        filename = QtGui.QFileDialog()
+    def attachDocumentToMatter(self):
+        fullPathName = QtGui.QFileDialog.getOpenFileName(self,'Attach Document',"C:\\" ) 
+        filename = fullPathName.split("/")[-1]
+        
+        data = {'action':'new',
+                'table':'OriginalDocuments',
+                'values':{'ClientNum':self.ui.clientNum.text(),
+                          'MatterNum':self.ui.matterNum.text(),
+                          'DocName':str(filename),
+                          'EFileDir':str(fullPathName)},
+                'params':{}
+                }
+        
+        CONN.connect()
+        CONN.saveData(data)
+        CONN.closecnxn()
+        self.listDocuments()
+        
+    def viewAttachment(self, path):
+        Popen([path],shell = True)
         
     def listAdverseParties(self):
         self.clearPartyFields()
@@ -144,6 +200,7 @@ class ClientMatter(QtGui.QMainWindow):
         self.ui.reason.setReadOnly(False)
         
         self.ui.apDelete.setEnabled(False)
+        self.ui.apSave.setEnabled(True)
     
     def viewAdverseParty(self,row,col):
         firstnamelabel = self.ui.partyList.cellWidget(row,0)
@@ -162,6 +219,8 @@ class ClientMatter(QtGui.QMainWindow):
         self.ui.reason.setReadOnly(False)
         
         self.ui.apDelete.setEnabled(True)
+        self.ui.apSave.setEnabled(True)
+        self.ui.apNew.setEnabled(False)
     
     def removeAdverseParty(self):
         if self.ui.apFirst.partyid is not None:
@@ -213,6 +272,11 @@ class ClientMatter(QtGui.QMainWindow):
         self.ui.apMiddle.setReadOnly(True)
         self.ui.apLast.setReadOnly(True)
         self.ui.reason.setReadOnly(True)
+        
+        self.ui.apSave.setEnabled(False)
+        self.ui.apDelete.setEnabled(False)
+        self.ui.apNew.setEnabled(True)
+        self.ui.apClear.setEnabled(True)
             
     def editMatter(self ):
         reply = checkChangesMade(self)
@@ -223,10 +287,13 @@ class ClientMatter(QtGui.QMainWindow):
                 self.ui.clientNum.setReadOnly(True)
                 self.ui.matterNum.setReadOnly(True)
                 self.ui.actionEdit.setText('Cancel Edit')
+                self.clearPartyFields()
+                
             elif self.action == 'update':
                 self.action = None
                 self.lockWindow()
                 self.ui.actionEdit.setText('Edit')
+                self.clearPartyFields()
                 
     def saveChanges(self):
         
@@ -247,6 +314,12 @@ class ClientMatter(QtGui.QMainWindow):
                 alert.setWindowTitle('Box Number Needed')
                 alert.exec_()
                 return
+            if self.action == 'new':
+                if MtrFuncs.checkValidMatterNumber(self.ui.clientNum.text(),self.ui.matterNum.text()):
+                    alert.setText("Duplicate Matter Number")
+                    alert.setWindowTitle('Matter Number already exists. ')
+                    alert.exec_()
+                    return
             
         mattertype = self.ui.matterType.itemData(self.ui.matterType.currentIndex())
         
