@@ -12,6 +12,13 @@ class MainMatterScreen(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.ui = loadUi(UIDir+"\\MainWindow.ui", self)
         
+        icoDir = '.\\UI\\Icons\\'
+        self.ui.addClient.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
+        self.ui.addMatter.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
+        self.ui.saveClientChanges.setIcon(QtGui.QIcon(icoDir+'save.ico'))
+        self.ui.editClient.setIcon(QtGui.QIcon(icoDir+'note.ico'))
+        self.ui.clearContent.setIcon(QtGui.QIcon(icoDir+'clear.ico'))
+        
         self.activeUser = None
         self.changes = False
         self.action = None
@@ -34,6 +41,8 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.addMatter.clicked.connect(partial(self.openMatterWindow, None))
         self.ui.reset.clicked.connect(self.resetFilters)
         self.ui.search.clicked.connect(self.listClients)
+        
+        
         
     def resetFilters(self):
         self.ui.searchFirst.clear()

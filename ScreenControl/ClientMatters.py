@@ -12,6 +12,17 @@ class ClientMatter(QtGui.QMainWindow):
         QtGui.QMainWindow.__init__(self)
         self.ui = loadUi(UIDir + "\\MatterWindow.ui",self)
         
+        
+        icoDir = '.\\UI\\Icons\\'
+        self.ui.actionSave.setIcon(QtGui.QIcon(icoDir+'save.ico'))
+        self.ui.actionEdit.setIcon(QtGui.QIcon(icoDir+'note.ico'))
+        self.ui.actionClose.setIcon(QtGui.QIcon(icoDir+'arrow-1.ico'))
+        self.ui.attachDocument.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
+        self.ui.apNew.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
+        self.ui.apClear.setIcon(QtGui.QIcon(icoDir+'note.ico'))
+        self.ui.apSave.setIcon(QtGui.QIcon(icoDir+'save.ico'))
+        self.ui.apDelete.setIcon(QtGui.QIcon(icoDir+'delete.ico'))
+        
         self.client = client
         self.clientnum = clientnum
         self.matter = matter

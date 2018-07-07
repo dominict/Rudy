@@ -116,13 +116,6 @@
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QToolButton" name="helpme">
-       <property name="text">
-        <string>Help</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
    <item row="1" column="1">

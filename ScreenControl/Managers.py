@@ -8,6 +8,11 @@ class MatterManager(QtGui.QFrame):
         QtGui.QFrame.__init__(self)
         self.ui = loadUi(UIDir+"\\ManageMatters.ui", self)
         
+        icoDir = '.\\UI\\Icons\\'
+        self.ui.newMatter.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
+        self.ui.save.setIcon(QtGui.QIcon(icoDir+'save.ico'))
+        self.ui.clear.setIcon(QtGui.QIcon(icoDir+'clear.ico'))
+        
         self.changes = False
         self.action = None
         
@@ -151,6 +156,11 @@ class UserManager(QtGui.QFrame):
         
         QtGui.QFrame.__init__(self)
         self.ui = loadUi(UIDir+"\\ManageUsers.ui", self)
+        
+        icoDir = '.\\UI\\Icons\\'
+        self.ui.newUser.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
+        self.ui.save.setIcon(QtGui.QIcon(icoDir+'save.ico'))
+        self.ui.clear.setIcon(QtGui.QIcon(icoDir+'clear.ico'))
 
         for i in dir(self.ui):
             if i != 'showInactive':

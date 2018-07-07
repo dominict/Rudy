@@ -3,6 +3,9 @@ from ScreenControl.MainScreen import MainMatterScreen
 from ScreenControl.LogIn import LogInScreen
 from connectors import *
 import sys
+import packaging
+import packaging.version
+import packaging.requirements
 
 @demo
 class MainApp(QtGui.QApplication):
