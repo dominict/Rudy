@@ -2,16 +2,16 @@ from UI import *
 from ScreenControl import *
 from Functions import UserFunctions as UsrFuncs, MatterFunctions as MtrFuncs, CONN
 from PyQt4.Qt import QListWidgetItem
+from os import getcwd
 
 class MatterManager(QtGui.QFrame):
     def __init__(self):
         QtGui.QFrame.__init__(self)
-        self.ui = loadUi(UIDir+"\\ManageMatters.ui", self)
-        
-        icoDir = '.\\UI\\Icons\\'
-        self.ui.newMatter.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
-        self.ui.save.setIcon(QtGui.QIcon(icoDir+'save.ico'))
-        self.ui.clear.setIcon(QtGui.QIcon(icoDir+'clear.ico'))
+        self.ui = loadUi("ManageMatters", self)
+#         
+        self.ui.newMatter.setIcon(QtGui.QIcon(addIcon))
+        self.ui.save.setIcon(QtGui.QIcon(saveIcon))
+        self.ui.clear.setIcon(QtGui.QIcon(clearIcon))
         
         self.changes = False
         self.action = None
@@ -155,12 +155,11 @@ class UserManager(QtGui.QFrame):
     def __init__(self):
         
         QtGui.QFrame.__init__(self)
-        self.ui = loadUi(UIDir+"\\ManageUsers.ui", self)
-        
-        icoDir = '.\\UI\\Icons\\'
-        self.ui.newUser.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
-        self.ui.save.setIcon(QtGui.QIcon(icoDir+'save.ico'))
-        self.ui.clear.setIcon(QtGui.QIcon(icoDir+'clear.ico'))
+        self.ui = loadUi("ManageUsers", self)
+#         
+        self.ui.newUser.setIcon(QtGui.QIcon(addIcon))
+        self.ui.save.setIcon(QtGui.QIcon(saveIcon))
+        self.ui.clear.setIcon(QtGui.QIcon(clearIcon))
 
         for i in dir(self.ui):
             if i != 'showInactive':

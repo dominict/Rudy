@@ -48,6 +48,9 @@ QToolButton#nextPage{
 	background-color: rgb(11, 56, 97);
 }</string>
   </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_7">
     <item>
@@ -414,10 +417,6 @@ QToolButton#nextPage{
              <property name="text">
               <string>Add New Document</string>
              </property>
-             <property name="icon">
-              <iconset>
-               <normaloff>Icons/plus.ico</normaloff>Icons/plus.ico</iconset>
-             </property>
              <property name="toolButtonStyle">
               <enum>Qt::ToolButtonTextBesideIcon</enum>
              </property>
@@ -440,6 +439,11 @@ QToolButton#nextPage{
          </item>
          <item>
           <widget class="QTableWidget" name="documentList">
+           <column>
+            <property name="text">
+             <string>Delete</string>
+            </property>
+           </column>
            <column>
             <property name="text">
              <string>Name</string>
@@ -542,10 +546,6 @@ QToolButton#nextPage{
                   <property name="text">
                    <string>New</string>
                   </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>Icons/plus.ico</normaloff>Icons/plus.ico</iconset>
-                  </property>
                   <property name="toolButtonStyle">
                    <enum>Qt::ToolButtonTextBesideIcon</enum>
                   </property>
@@ -556,10 +556,6 @@ QToolButton#nextPage{
                   <property name="text">
                    <string>Save</string>
                   </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>Icons/save.ico</normaloff>Icons/save.ico</iconset>
-                  </property>
                   <property name="toolButtonStyle">
                    <enum>Qt::ToolButtonTextBesideIcon</enum>
                   </property>
@@ -569,10 +565,6 @@ QToolButton#nextPage{
                  <widget class="QToolButton" name="apClear">
                   <property name="text">
                    <string>Clear</string>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>Icons/clear.ico</normaloff>Icons/clear.ico</iconset>
                   </property>
                   <property name="toolButtonStyle">
                    <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -596,10 +588,6 @@ QToolButton#nextPage{
                  <widget class="QToolButton" name="apDelete">
                   <property name="text">
                    <string>Delete</string>
-                  </property>
-                  <property name="icon">
-                   <iconset>
-                    <normaloff>Icons/delete.ico</normaloff>Icons/delete.ico</iconset>
                   </property>
                   <property name="toolButtonStyle">
                    <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -681,7 +669,7 @@ QToolButton#nextPage{
   <action name="actionSave">
    <property name="icon">
     <iconset>
-     <normaloff>Icons/save.ico</normaloff>Icons/save.ico</iconset>
+     <normaloff>:/Icons/save.ico</normaloff>:/Icons/save.ico</iconset>
    </property>
    <property name="text">
     <string>Save</string>
@@ -690,7 +678,7 @@ QToolButton#nextPage{
   <action name="actionEdit">
    <property name="icon">
     <iconset>
-     <normaloff>Icons/note.ico</normaloff>Icons/note.ico</iconset>
+     <normaloff>:/Icons/note.ico</normaloff>:/Icons/note.ico</iconset>
    </property>
    <property name="text">
     <string>Edit</string>
@@ -699,7 +687,7 @@ QToolButton#nextPage{
   <action name="actionClose">
    <property name="icon">
     <iconset>
-     <normaloff>Icons/arrow-1.ico</normaloff>Icons/arrow-1.ico</iconset>
+     <normaloff>:/Icons/arrow-1.ico</normaloff>:/Icons/arrow-1.ico</iconset>
    </property>
    <property name="text">
     <string>Close</string>

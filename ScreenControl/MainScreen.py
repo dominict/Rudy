@@ -1,24 +1,24 @@
-from UI import *
-from ScreenControl.Managers import MatterManager, UserManager
+# from UI import *
 from ScreenControl import *
+from ScreenControl.Managers import MatterManager, UserManager
 from ScreenControl import ClientMatters
 from Functions import CONN, ClientFunctions as ClntFuncs, MatterFunctions as MtrFuncs
 from functools import partial
 from difflib import get_close_matches
+from os import getcwd
 
 class MainMatterScreen(QtGui.QMainWindow):
     def __init__(self, app):
-        
+
         QtGui.QMainWindow.__init__(self)
-        self.ui = loadUi(UIDir+"\\MainWindow.ui", self)
-        
-        icoDir = '.\\UI\\Icons\\'
-        self.ui.addClient.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
-        self.ui.addMatter.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
-        self.ui.saveClientChanges.setIcon(QtGui.QIcon(icoDir+'save.ico'))
-        self.ui.editClient.setIcon(QtGui.QIcon(icoDir+'note.ico'))
-        self.ui.clearContent.setIcon(QtGui.QIcon(icoDir+'clear.ico'))
-        
+        self.ui = loadUi("MainWindow", self)
+
+        self.ui.addClient.setIcon(QtGui.QIcon(addIcon))
+        self.ui.addMatter.setIcon(QtGui.QIcon(addIcon))
+        self.ui.saveClientChanges.setIcon(QtGui.QIcon(saveIcon))
+        self.ui.editClient.setIcon(QtGui.QIcon(editIcon))
+        self.ui.clearContent.setIcon(QtGui.QIcon(clearIcon))
+#         
         self.activeUser = None
         self.changes = False
         self.action = None

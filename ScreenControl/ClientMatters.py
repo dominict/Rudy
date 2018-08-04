@@ -5,23 +5,25 @@ from ScreenControl import *
 from datetime import datetime as dt
 from subprocess import Popen
 from re import sub
+from os import getcwd
 
 class ClientMatter(QtGui.QMainWindow):
     def __init__(self, client, clientnum, matter = None):
         
         QtGui.QMainWindow.__init__(self)
-        self.ui = loadUi(UIDir + "\\MatterWindow.ui",self)
+        self.ui = loadUi("MatterWindow",self)
         
-        
-        icoDir = '.\\UI\\Icons\\'
-        self.ui.actionSave.setIcon(QtGui.QIcon(icoDir+'save.ico'))
-        self.ui.actionEdit.setIcon(QtGui.QIcon(icoDir+'note.ico'))
-        self.ui.actionClose.setIcon(QtGui.QIcon(icoDir+'arrow-1.ico'))
-        self.ui.attachDocument.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
-        self.ui.apNew.setIcon(QtGui.QIcon(icoDir+'plus.ico'))
-        self.ui.apClear.setIcon(QtGui.QIcon(icoDir+'note.ico'))
-        self.ui.apSave.setIcon(QtGui.QIcon(icoDir+'save.ico'))
-        self.ui.apDelete.setIcon(QtGui.QIcon(icoDir+'delete.ico'))
+        for c, w in enumerate([50,150,100,50]):
+            self.ui.documentList.setColumnWidth(c,w)
+
+        self.ui.actionSave.setIcon(QtGui.QIcon(saveIcon))
+        self.ui.actionEdit.setIcon(QtGui.QIcon(editIcon))
+        self.ui.actionClose.setIcon(QtGui.QIcon(exitIcon))
+        self.ui.attachDocument.setIcon(QtGui.QIcon(addIcon))
+        self.ui.apNew.setIcon(QtGui.QIcon(addIcon))
+        self.ui.apClear.setIcon(QtGui.QIcon(clearIcon))
+        self.ui.apSave.setIcon(QtGui.QIcon(saveIcon))
+        self.ui.apDelete.setIcon(QtGui.QIcon(deleteIcon))
         
         self.client = client
         self.clientnum = clientnum
@@ -155,34 +157,59 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
         for r, data in docList:
             self.ui.documentList.insertRow(r)
             
+            delButton = QtGui.QToolButton()
+            delButton.setIcon(QtGui.QIcon(deleteIcon))
+            delButton.clicked.connect( partial(self.deleteAttachment, data.efiledir) )
+            delButton.setToolTip('Delete Attachment')
+            
             viewButton = QtGui.QToolButton()
-            viewButton.setText('View Doc')
+            viewButton.setText('View')
             viewButton.clicked.connect( partial(self.viewAttachment, data.efiledir) )
             
-            cols = [QtGui.QLabel(str(data.docname))
+            cols = [delButton
+                    , QtGui.QLabel(str(data.docname))
                     , QtGui.QLabel(str(data.efiledir))
                     , viewButton]
             
             populateTableRow(self.ui.documentList, r, cols)
             
+            
     
     def attachDocumentToMatter(self):
         fullPathName = QtGui.QFileDialog.getOpenFileName(self,'Attach Document',"C:\\" ) 
         filename = fullPathName.split("/")[-1]
+        if filename != '':
+            data = {'action':'new',
+                    'table':'OriginalDocuments',
+                    'values':{'ClientNum':self.ui.clientNum.text(),
+                              'MatterNum':self.ui.matterNum.text(),
+                              'DocName':str(filename),
+                              'EFileDir':str(fullPathName)},
+                    'params':{}
+                    }
         
-        data = {'action':'new',
-                'table':'OriginalDocuments',
-                'values':{'ClientNum':self.ui.clientNum.text(),
-                          'MatterNum':self.ui.matterNum.text(),
-                          'DocName':str(filename),
-                          'EFileDir':str(fullPathName)},
-                'params':{}
-                }
-        
-        CONN.connect()
-        CONN.saveData(data)
-        CONN.closecnxn()
+            CONN.connect()
+            CONN.saveData(data)
+            CONN.closecnxn()
         self.listDocuments()
+        
+    def deleteAttachment(self, path):
+        reply = QtGui.QMessageBox.question(self, 'Delete Attachment?', 'Would you like to delete this attachment (will not delete from hard drive)?',
+                                           QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            data = {'action':'delete',
+                    'table':'OriginalDocuments',
+                    'values':{
+                              },
+                    'params':{'ClientNum':self.ui.clientNum.text(),
+                              'MatterNum':self.ui.matterNum.text(),
+                              'EFileDir':str(path)}
+                    }
+        
+            CONN.connect()
+            CONN.saveData(data)
+            CONN.closecnxn()
+            self.listDocuments()
         
     def viewAttachment(self, path):
         Popen([path],shell = True)

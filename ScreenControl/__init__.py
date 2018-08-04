@@ -3,7 +3,7 @@ from functools import partial
 
 def checkChangesMade(cls):
     if cls.changes == True:
-        reply = QtGui.QMessageBox.question(cls, "Save Changes?", "Would you like to save you changes?"
+        reply = QtGui.QMessageBox.question(cls, "Save Changes?", "Would you like to save your changes?"
                                            ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
         if reply == QtGui.QMessageBox.Yes:
             cls.saveChanges()

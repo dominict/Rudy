@@ -5,7 +5,7 @@ class LogInScreen(QtGui.QFrame):
     def __init__(self,app):
         
         QtGui.QFrame.__init__(self)
-        self.ui = loadUi(UIDir+"\\LogIn.ui",self)
+        self.ui = loadUi("LogIn",self)
         
         self.actionLogIn = QtGui.QAction('AttemptLogin',self)
         QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Enter),self,self.attemptLogIn)

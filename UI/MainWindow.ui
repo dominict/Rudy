@@ -53,7 +53,8 @@ QToolButton#nextPage{
 	font: 75 10pt &quot;Microsoft Tai Le&quot;;
 	color: rgb(202, 161, 56);
 	background-color: rgb(11, 56, 97);
-}</string>
+}
+QIcon{background-color:rga(1,1,1);}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="3,5">
