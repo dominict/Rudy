@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1418</width>
-    <height>837</height>
+    <height>851</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -170,6 +170,13 @@ QIcon{background-color:rga(1,1,1);}</string>
                <widget class="QLineEdit" name="searchLast">
                 <property name="placeholderText">
                  <string>Last Name</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="seeDeleted">
+                <property name="text">
+                 <string>Deleted</string>
                 </property>
                </widget>
               </item>
@@ -873,6 +880,20 @@ QIcon{background-color:rga(1,1,1);}</string>
               </property>
              </spacer>
             </item>
+            <item>
+             <widget class="QToolButton" name="deleteAccount">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+              <property name="icon">
+               <iconset>
+                <normaloff>Icons/delete.ico</normaloff>Icons/delete.ico</iconset>
+              </property>
+              <property name="toolButtonStyle">
+               <enum>Qt::ToolButtonTextBesideIcon</enum>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item row="1" column="0" colspan="3">
@@ -942,11 +963,13 @@ QIcon{background-color:rga(1,1,1);}</string>
     </property>
     <addaction name="actionManage_Matter_Types"/>
     <addaction name="actionManage_Users"/>
+    <addaction name="actionFile_Maintenance"/>
    </widget>
    <widget class="QMenu" name="menuReports">
     <property name="title">
      <string>Reports</string>
     </property>
+    <addaction name="actionBuild_a_Report"/>
    </widget>
    <addaction name="menuAdmin"/>
    <addaction name="menuReports"/>
@@ -959,6 +982,16 @@ QIcon{background-color:rga(1,1,1);}</string>
   <action name="actionManage_Matter_Types">
    <property name="text">
     <string>Manage Matter Types</string>
+   </property>
+  </action>
+  <action name="actionFile_Maintenance">
+   <property name="text">
+    <string>File Maintenance</string>
+   </property>
+  </action>
+  <action name="actionBuild_a_Report">
+   <property name="text">
+    <string>Build a Report</string>
    </property>
   </action>
  </widget>

@@ -28,4 +28,29 @@ def getUserList(activeOnly = True):
     CONN.closecnxn()
     
     return data
+
+def cleanOutDeletedAccounts(cutoffDate):
+    
+    q = """
+    SELECT ClientNum
+    FROM ClientInfo
+    WHERE Deleted = 1 AND DeleteDate <= ?
+    """
+    v = [str(cutoffDate)]
+    
+    q1 = "DELETE FROM OriginalDocuments WHERE ClientNum = ?"
+    q2 = "DELETE FROM ClientMatters WHERE ClientNum = ?"
+    q3 = "DELETE FROM ClientInfo WHERE ClientNum = ?"
+    q4 = "DELETE FROM AdverseParties WHERE ClientNum = ?"
+    CONN.connect()
+    data = CONN.readData(q,v)
+    
+    for i in data.index:
+        clientnum = [str(data.clientnum[i])]
+        CONN.writeData(q1,clientnum)
+        CONN.writeData(q2,clientnum)
+        CONN.writeData(q3,clientnum)
+        CONN.writeData(q4,clientnum)
         
+    
+    

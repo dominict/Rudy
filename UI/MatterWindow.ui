@@ -168,14 +168,14 @@ QToolButton#nextPage{
             <item row="1" column="1">
              <widget class="QComboBox" name="matterType"/>
             </item>
-            <item row="2" column="0">
+            <item row="3" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
                <string>Date Opened</string>
               </property>
              </widget>
             </item>
-            <item row="2" column="1">
+            <item row="3" column="1">
              <widget class="QDateEdit" name="dateOpened">
               <property name="showGroupSeparator" stdset="0">
                <bool>false</bool>
@@ -185,32 +185,78 @@ QToolButton#nextPage{
               </property>
              </widget>
             </item>
-            <item row="3" column="0">
+            <item row="4" column="0">
              <widget class="QLabel" name="label_9">
               <property name="text">
                <string>Date Closed</string>
               </property>
              </widget>
             </item>
-            <item row="3" column="1">
-             <widget class="QDateEdit" name="dateClosed">
-              <property name="showGroupSeparator" stdset="0">
-               <bool>false</bool>
-              </property>
-              <property name="calendarPopup">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item row="4" column="0">
+            <item row="5" column="0">
              <widget class="QLabel" name="label_10">
               <property name="text">
                <string>Box Number</string>
               </property>
              </widget>
             </item>
-            <item row="4" column="1">
+            <item row="5" column="1">
              <widget class="QLineEdit" name="boxNumber"/>
+            </item>
+            <item row="4" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QCheckBox" name="closed">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Closed</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDateEdit" name="dateClosed">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="showGroupSeparator" stdset="0">
+                 <bool>false</bool>
+                </property>
+                <property name="calendarPopup">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Estate Assets</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QDoubleSpinBox" name="assets">
+              <property name="specialValueText">
+               <string>No Assets</string>
+              </property>
+              <property name="showGroupSeparator" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="prefix">
+               <string>$ </string>
+              </property>
+              <property name="maximum">
+               <double>9999999999.989999771118164</double>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -413,9 +459,9 @@ QToolButton#nextPage{
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
-            <widget class="QToolButton" name="attachDocument">
+            <widget class="QToolButton" name="setDirectory">
              <property name="text">
-              <string>Add New Document</string>
+              <string>Set Directory</string>
              </property>
              <property name="toolButtonStyle">
               <enum>Qt::ToolButtonTextBesideIcon</enum>
@@ -423,17 +469,21 @@ QToolButton#nextPage{
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+            <widget class="QLineEdit" name="currentDir">
+             <property name="readOnly">
+              <bool>true</bool>
              </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="attachDocument">
+             <property name="text">
+              <string>Add New Document(s)</string>
              </property>
-            </spacer>
+             <property name="toolButtonStyle">
+              <enum>Qt::ToolButtonTextBesideIcon</enum>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>

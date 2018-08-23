@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ReportFrame</class>
+ <widget class="QFrame" name="ReportFrame">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>845</width>
+    <height>503</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Rudy Reporting</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">
+QFrame#ReportFrame{
+	
+	font: 10pt &quot;Microsoft Tai Le&quot;;
+	background-color:rgb(226, 226, 226);
+}
+QGroupBox, QToolBox{
+	font: 75 12pt &quot;Microsoft Tai Le&quot;;
+}
+QPushButton{
+	
+	font: 75 10pt &quot;Microsoft Tai Le&quot;;
+	color: rgb(202, 161, 56);
+	background-color: rgb(11, 56, 97);
+}
+QToolButton{
+	font: 75 10pt &quot;Microsoft Tai Le&quot;;
+}
+QToolButton#prevPage{
+	
+	font: 75 10pt &quot;Microsoft Tai Le&quot;;
+	color: rgb(202, 161, 56);
+	background-color: rgb(11, 56, 97);
+}
+QToolButton#nextPage{
+	
+	font: 75 10pt &quot;Microsoft Tai Le&quot;;
+	color: rgb(202, 161, 56);
+	background-color: rgb(11, 56, 97);
+}</string>
+  </property>
+  <property name="frameShape">
+   <enum>QFrame::StyledPanel</enum>
+  </property>
+  <property name="frameShadow">
+   <enum>QFrame::Raised</enum>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <widget class="QWidget" name="layoutWidget">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QToolButton" name="resetReport">
+           <property name="text">
+            <string>Reset Parameters</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>Icons/restart.ico</normaloff>Icons/restart.ico</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="runReport">
+           <property name="text">
+            <string>Run Report</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>Icons/search.ico</normaloff>Icons/search.ico</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="exportReport">
+           <property name="text">
+            <string>Export Report</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>Icons/excelExport.ico</normaloff>Icons/excelExport.ico</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="clearReport">
+           <property name="text">
+            <string>Clear Report</string>
+           </property>
+           <property name="icon">
+            <iconset>
+             <normaloff>Icons/clear.ico</normaloff>Icons/clear.ico</iconset>
+           </property>
+           <property name="toolButtonStyle">
+            <enum>Qt::ToolButtonTextBesideIcon</enum>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QToolBox" name="toolBox">
+         <property name="currentIndex">
+          <number>0</number>
+         </property>
+         <widget class="QWidget" name="page">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>484</width>
+            <height>397</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>Display Columns</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QTreeWidget" name="displayCols">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rootIsDecorated">
+              <bool>true</bool>
+             </property>
+             <property name="uniformRowHeights">
+              <bool>false</bool>
+             </property>
+             <property name="animated">
+              <bool>false</bool>
+             </property>
+             <property name="allColumnsShowFocus">
+              <bool>false</bool>
+             </property>
+             <column>
+              <property name="text">
+               <string>Table</string>
+              </property>
+             </column>
+             <item>
+              <property name="text">
+               <string>ClientInfo</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>ClientNum</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ClientName</string>
+               </property>
+              </item>
+             </item>
+             <item>
+              <property name="text">
+               <string>ClientMatters</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>MatterNum</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>MatterTypeID</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Attorney</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>TotalAssets</string>
+               </property>
+              </item>
+             </item>
+             <item>
+              <property name="text">
+               <string>MatterTypes</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>MatterTypeID</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>MatterDesc</string>
+               </property>
+              </item>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="page_2">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>484</width>
+            <height>397</height>
+           </rect>
+          </property>
+          <attribute name="label">
+           <string>Report Filters</string>
+          </attribute>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QTreeWidget" name="availableFilters">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="alternatingRowColors">
+              <bool>true</bool>
+             </property>
+             <property name="rootIsDecorated">
+              <bool>true</bool>
+             </property>
+             <property name="uniformRowHeights">
+              <bool>false</bool>
+             </property>
+             <property name="animated">
+              <bool>false</bool>
+             </property>
+             <property name="allColumnsShowFocus">
+              <bool>false</bool>
+             </property>
+             <property name="columnCount">
+              <number>1</number>
+             </property>
+             <attribute name="headerDefaultSectionSize">
+              <number>150</number>
+             </attribute>
+             <column>
+              <property name="text">
+               <string>Table</string>
+              </property>
+             </column>
+             <item>
+              <property name="text">
+               <string>ClientInfo</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>ClientNum</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>ClientName</string>
+               </property>
+              </item>
+             </item>
+             <item>
+              <property name="text">
+               <string>ClientMatters</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>MatterNum</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>MatterTypeID</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Attorney</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>TotalAssets</string>
+               </property>
+              </item>
+             </item>
+             <item>
+              <property name="text">
+               <string>MatterTypes</string>
+              </property>
+              <item>
+               <property name="text">
+                <string>MatterTypeID</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>MatterDesc</string>
+               </property>
+              </item>
+             </item>
+            </widget>
+           </item>
+           <item>
+            <widget class="QListWidget" name="activeFilters"/>
+           </item>
+          </layout>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QTableWidget" name="reportResults">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

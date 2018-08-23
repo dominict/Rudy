@@ -1,11 +1,13 @@
 # from UI import *
 from ScreenControl import *
-from ScreenControl.Managers import MatterManager, UserManager
-from ScreenControl import ClientMatters
+from ScreenControl.Managers import MatterManager, UserManager,CleanUp
+from ScreenControl import ClientMatters, ReportControlWindow
 from Functions import CONN, ClientFunctions as ClntFuncs, MatterFunctions as MtrFuncs
 from functools import partial
 from difflib import get_close_matches
 from os import getcwd
+from datetime import datetime as dt
+from pandas import DataFrame
 
 class MainMatterScreen(QtGui.QMainWindow):
     def __init__(self, app):
@@ -18,6 +20,7 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.saveClientChanges.setIcon(QtGui.QIcon(saveIcon))
         self.ui.editClient.setIcon(QtGui.QIcon(editIcon))
         self.ui.clearContent.setIcon(QtGui.QIcon(clearIcon))
+        self.ui.deleteAccount.setIcon(QtGui.QIcon(deleteIcon))
 #         
         self.activeUser = None
         self.changes = False
@@ -28,11 +31,13 @@ class MainMatterScreen(QtGui.QMainWindow):
         
         
         for i in dir(self.ui):
-            if i != 'showInactive' and i not in ['searchFirst','searchLast','searchAddr', 'searchCity','searchState','searchContacts']: 
+            if i != 'showInactive' and i not in ['searchFirst','searchLast','searchAddr', 'searchCity','searchState','searchContacts','seeDeleted']: 
                 exec("initializeChangeTracking(self,self.ui.{})".format(i))
         
         self.ui.actionManage_Matter_Types.triggered.connect(partial( self.openManager, MatterManager))
         self.ui.actionManage_Users.triggered.connect(partial(self.openManager, UserManager))
+        self.ui.actionFile_Maintenance.triggered.connect(partial(self.openManager, CleanUp))
+        self.ui.actionBuild_a_Report.triggered.connect(self.openReportWindow)
         self.ui.addClient.clicked.connect(self.startAddingNew)
         self.ui.clearContent.clicked.connect(self.clearFields)
         self.ui.editClient.clicked.connect(self.editUser)
@@ -41,6 +46,7 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.addMatter.clicked.connect(partial(self.openMatterWindow, None))
         self.ui.reset.clicked.connect(self.resetFilters)
         self.ui.search.clicked.connect(self.listClients)
+        self.ui.deleteAccount.clicked.connect(self.deleteClient)
         
         
         
@@ -73,6 +79,7 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.spouseInfo.setEnabled(False)
         self.ui.donotrep.setEnabled(False)
         self.ui.addMatter.setEnabled(False)
+        self.ui.deleteAccount.setEnabled(False)
         
         self.action = None
         self.ui.saveClientChanges.setEnabled(False)
@@ -130,6 +137,7 @@ class MainMatterScreen(QtGui.QMainWindow):
         if self.ui.clientNum.text() != '' and self.action is None:
             self.action = 'update'
             self.ui.saveClientChanges.setEnabled(True)
+            self.ui.deleteAccount.setEnabled(True)
             self.ui.editClient.setText('Cancel')
             self.unlockFields()
             self.ui.clientNum.setReadOnly(True)
@@ -142,6 +150,13 @@ class MainMatterScreen(QtGui.QMainWindow):
         if reply == 0:
             self.action = 'new'
             self.unlockFields()
+            clientnum = ClntFuncs.getNextClientNum()
+            
+            if len(clientnum) > 0:
+                self.ui.clientNum.setText(str(clientnum.nextnum[0]))
+            else:
+                self.ui.clientNum.setText(str(1))
+                
             self.ui.saveClientChanges.setEnabled(True)
             self.ui.addMatter.setEnabled(False)
             
@@ -153,10 +168,20 @@ class MainMatterScreen(QtGui.QMainWindow):
         closeNames = get_close_matches(clientName, partyFullNames)
         if self.ui.spouseInfo.isChecked():
             spouseName = "{} {} {}".format( self.ui.firstName_2.text(), self.ui.middleInitial_2.text(), self.ui.lastName_2.text())
-            closeNames.extend(get_close_matches(spouseName, partyFullNames, n = 5, cutoff = .5))
+            
+            closeNames.extend(get_close_matches(spouseName, partyFullNames, n = 5, cutoff = .7))
         if len(closeNames) > 0:
-            print(closeNames)
-            names = "\n".join(closeNames)
+            
+            closeNameDF = DataFrame(closeNames,columns = ['fullname'])
+            nameData = apData.merge(closeNameDF, how = 'inner',on = 'fullname').reset_index()
+            
+            nameDisplay = []
+            for i in nameData.index:
+                
+                disp = '{} - Matter: {}.{}'.format(nameData.fullname[i],nameData.clientnum[i],nameData.matternum[i])
+                nameDisplay.append(disp)
+                
+            names = "\n".join(nameDisplay)
             reply = QtGui.QMessageBox.question(self, "Matching Names?", "The following names are possible adverse party matches to this new client. \n{}\nDo you want to save this new client still?".format(names)
                                                ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
             
@@ -166,12 +191,89 @@ class MainMatterScreen(QtGui.QMainWindow):
                 return True
         else:
             return False
+        
+    def checkForDupes(self):
+        
+        clientnum = self.ui.clientNum.text()
+        clientName = "{} {} {}".format( self.ui.firstName.text(), self.ui.middleInitial.text(), self.ui.lastName.text())
+        spouseName = "{} {} {}".format( self.ui.firstName_2.text(), self.ui.middleInitial_2.text(), self.ui.lastName_2.text())
+        clientAddr = "{} {} {} {} {}".format(self.ui.addr1.text(), self.ui.addr2.text(), self.ui.city.text(), self.ui.state.currentText(), self.ui.zipcode.text())
+        
+        refList = ClntFuncs.compileDupeCheck(clientnum)
+        nameList = refList.fullname.values
+        addrList = refList.fulladdr.values
+        
+        closeNames = get_close_matches(clientName, nameList, n = 5, cutoff = .7)
+        closeNames.extend(get_close_matches(spouseName, nameList, n = 5, cutoff = .7))
+        
+        closeNameDF = DataFrame(closeNames,columns = ['fullname'])
+        nameData = refList.merge(closeNameDF, how = 'inner',on = 'fullname').drop_duplicates().reset_index()
+        
+        closeAddrs = get_close_matches(clientAddr, addrList, n = 5, cutoff = .90)
+        closeAddrDF = DataFrame(closeAddrs, columns = ['fulladdr'])
+        addrData = refList.merge(closeAddrDF, how = 'inner',on = 'fulladdr').drop_duplicates().reset_index()
+        
+        dupeDisp = []
+        for i in nameData.index:
+            dupeDisp.append('Client #: {} - {} '.format(nameData.clientnum[i], nameData.fullname[i]))
+        
+        for j in addrData.index:
+            dupeDisp.append('{} {} - {}'.format(addrData.clientnum[j], addrData.fullname[j], addrData.fulladdr[j]))
+            
+        if len(dupeDisp) > 0:
+               
+            names = "\n".join(dupeDisp)
+            reply = QtGui.QMessageBox.question(self, "Matching Names?", "The following names or address are possible duplicate matches to this new client. \n{}\nDo you want to save this new client still?".format(names)
+                                               ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
+            
+            if reply == QtGui.QMessageBox.Yes:
+                return False
+            else:
+                return True
+        else:
+            return False
+        
+        
+    def deleteClient(self):
+        if self.action == 'update':
+            if self.ui.deleteAccount.delAction == '0':
+                
+                reply = QtGui.QMessageBox.question(self, 'Restore Account', 'Do you want to restore this account from the deleted group?',
+                                                   QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            else:
+                reply = QtGui.QMessageBox.question(self, 'Delete Account', 'Do you want to delete this account?',
+                                                   QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                
+            
+
+            if reply == QtGui.QMessageBox.Yes:                                      
+                data = {'action':self.action,
+                        'table':'ClientInfo',
+                        'values':{'Deleted':str(self.ui.deleteAccount.delAction),
+                                  'DeleteDate':str(self.ui.deleteAccount.actionDate)
+                                  },
+                        'params':{'ClientNum':str(self.ui.clientNum.text())}
+                    }
+                
+                CONN.connect()
+                CONN.saveData(data)
+                CONN.closecnxn()
+                
+                
+                self.listClients()
+                self.lockFields()
+                
+                
             
     def saveChanges(self):
         
         if self.action is not None:
             if self.checkName():
                 return
+            
+            if self.checkForDupes():
+                return
+            
             if self.ui.clientNum.text().strip() == '':
                 alert = QtGui.QMessageBox()
                 alert.setWindowTitle('Missing Client #')
@@ -227,13 +329,14 @@ class MainMatterScreen(QtGui.QMainWindow):
         stateFilter = self.ui.searchState.text()
         contactFilters = self.ui.searchContacts.text()
         
+        deleted = self.ui.seeDeleted.checkState() == 2
         cws = [60,115,125,75,35,50]
         for c, w in enumerate(cws):
             self.ui.clientList.setColumnWidth(c,w)
         
         self.ui.clientList.setRowCount(0)
         
-        for r, data in ClntFuncs.listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, contactFilters):
+        for r, data in ClntFuncs.listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, contactFilters, deleted):
             
             self.ui.clientList.insertRow(r)
             self.ui.clientList.setRowHeight(r,20)
@@ -275,6 +378,17 @@ class MainMatterScreen(QtGui.QMainWindow):
             self.ui.notes.setText(data.notes)
             self.ui.spouseInfo.setEnabled(int(data.married) == 1)
             self.ui.donotrep.setCheckState(int(data.donotrep) * 2)
+            
+            if data.deleted == 1:
+                self.ui.deleteAccount.setText("Restore")
+                self.ui.deleteAccount.setIcon(QtGui.QIcon(alertIcon))
+                self.ui.deleteAccount.actionDate = 'NULL'
+                self.ui.deleteAccount.delAction = '0'
+            else:
+                self.ui.deleteAccount.setText("Delete")
+                self.ui.deleteAccount.setIcon(QtGui.QIcon(deleteIcon))
+                self.ui.deleteAccount.delAction = '1'
+                self.ui.deleteAccount.actionDate = str(dt.today().date())
             
             self.ui.addMatter.setEnabled(True)
             
@@ -322,7 +436,10 @@ class MainMatterScreen(QtGui.QMainWindow):
     
     def openManager(self, manager):
         if self.activeUser is not None:
-            print(self.activeUser)
             if self.activeUser.admin == 1:
                 self.mgr = manager()
                 self.mgr.show()
+                
+    def openReportWindow(self):
+        self.reporter = ReportControlWindow.ReportingControls()
+        self.reporter.show()

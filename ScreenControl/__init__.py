@@ -7,13 +7,15 @@ def checkChangesMade(cls):
                                            ,QtGui.QMessageBox.Yes, QtGui.QMessageBox.No, QtGui.QMessageBox.Cancel)
         if reply == QtGui.QMessageBox.Yes:
             cls.saveChanges()
+            cls.changes = False
             return 0
         elif reply == QtGui.QMessageBox.Cancel:
             return 1
         else:
+            cls.changes = False
             return 0
     else:   
-        
+        cls.changes = False
         return 0
     
 def initializeChangeTracking(cls,widget):

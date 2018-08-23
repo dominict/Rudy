@@ -6,6 +6,8 @@ from datetime import datetime as dt
 from subprocess import Popen
 from re import sub
 from os import getcwd
+from test.test_iterlen import NoneLengthHint
+from PyQt4.Qt import QMessageBox
 
 class ClientMatter(QtGui.QMainWindow):
     def __init__(self, client, clientnum, matter = None):
@@ -50,7 +52,7 @@ class ClientMatter(QtGui.QMainWindow):
         for i in dir(self.ui):
             execStr = """
 widget = self.ui.{}
-if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
+if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.QDateEdit)):
     if (widget not in list([self.ui.apFirst,self.ui.apLast, self.ui.apMiddle, self.ui.reason])): 
         initializeChangeTracking(self,widget)""".format(i)
             exec(execStr)
@@ -66,8 +68,10 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
         self.ui.apSave.clicked.connect(self.saveAdverseParty)
         self.ui.apDelete.clicked.connect(self.removeAdverseParty)
         self.ui.apNew.clicked.connect(self.addAdverseParty)
+        self.ui.closed.stateChanged.connect(self.closeMatter)
         
         self.ui.attachDocument.clicked.connect(self.attachDocumentToMatter)
+        self.ui.setDirectory.clicked.connect(self.setMatterDirectory)
         
     def formatMatterNumber(self):
         currNum = self.ui.matterNum.text()
@@ -93,7 +97,7 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
         
         if isinstance(widget,QtGui.QLineEdit):
             widget.setReadOnly(locked)
-        elif isinstance(widget,(QtGui.QComboBox,QtGui.QDateEdit,QtGui.QToolButton, QtGui.QPushButton)):
+        elif isinstance(widget,(QtGui.QComboBox,QtGui.QDateEdit,QtGui.QToolButton, QtGui.QPushButton, QtGui.QCheckBox)):
             widget.setDisabled(locked)
             
     def newMatter(self , clientNum):
@@ -122,9 +126,11 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
             
         self.ui.dateOpened.setDate(QtCore.QDate(dt.strptime(str(self.matter.dateopened),"%Y-%m-%d")))
         if self.matter.dateclosed is not None:
+            self.ui.closed.setCheckState(2)
             self.ui.dateClosed.setDate(QtCore.QDate(dt.strptime(str(self.matter.dateclosed),"%Y-%m-%d")))
             self.ui.boxNumber.setText(self.matter.boxnumber)
         else:
+            self.ui.closed.setCheckState(0)
             self.ui.dateClosed.setDate(self.ui.dateClosed.minimumDate())
             
         self.ui.firstName.setText(self.matter.firstname)
@@ -133,6 +139,11 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
         self.ui.addr1.setText(self.matter.billingaddr1)
         self.ui.addr2.setText(self.matter.billingaddr2)
         self.ui.billCity.setText(self.matter.billingcity)
+       
+        if self.matter.matterdir is not None:
+            self.ui.currentDir.setText(self.matter.matterdir)
+            
+            
         
         stateindex = self.ui.billState.findData(self.matter.billingstate)
         if stateindex > 0:
@@ -140,7 +151,10 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
         
         self.ui.billZip.setText(self.matter.billingzip)
         
+        if self.matter.matterdir is not None:
+            self.ui.currentDir.setText(self.matter.matterdir)
         
+        self.ui.setDirectory.setEnabled(True)
         self.ui.attachDocument.setEnabled(True)
         self.ui.apSave.setEnabled(False)
         self.ui.apDelete.setEnabled(False)
@@ -149,6 +163,26 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
         
         self.listDocuments()
         self.listAdverseParties()
+        
+    def closeMatter(self,state):
+        if state ==2:
+            if self.matter.dateclosed is None:
+                closeDate = dt.today().date()
+            else:
+                closeDate = dt.strptime(str(self.matter.dateclosed),"%Y-%m-%d")
+        else:
+            if self.matter.dateclosed is None:
+                closeDate = self.ui.dateClosed.minimumDate().toPyDate()
+            else:
+                reply = QtGui.QMessageBox.question(self, 'Open Matter','This matter has been closed.  Do you want to re-open the matter?',
+                                                   QtGui.QMessageBox.Yes, QtGui.QMessageBox.No
+                                                )
+                if reply == QtGui.QMessageBox.Yes:
+                    closeDate = self.ui.dateClosed.minimumDate().toPyDate()
+                else:
+                    self.ui.closed.setCheckState(2)
+                    closeDate = dt.strptime(str(self.matter.dateclosed),"%Y-%m-%d")
+        self.ui.dateClosed.setDate(QtCore.QDate(closeDate))
         
     def listDocuments(self):
         docList = MtrFuncs.generateDocumentList(self.ui.clientNum.text(), self.ui.matterNum.text())
@@ -173,24 +207,51 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
             
             populateTableRow(self.ui.documentList, r, cols)
             
+    def setMatterDirectory(self):
+        dirpath = QtGui.QFileDialog.getExistingDirectory(parent=self, caption='Set Matter Directory', directory='C:\\')
+        
+        if dirpath != '':
+            self.ui.currentDir.setText(dirpath)
             
-    
-    def attachDocumentToMatter(self):
-        fullPathName = QtGui.QFileDialog.getOpenFileName(self,'Attach Document',"C:\\" ) 
-        filename = fullPathName.split("/")[-1]
-        if filename != '':
-            data = {'action':'new',
-                    'table':'OriginalDocuments',
-                    'values':{'ClientNum':self.ui.clientNum.text(),
-                              'MatterNum':self.ui.matterNum.text(),
-                              'DocName':str(filename),
-                              'EFileDir':str(fullPathName)},
+            data = {'action':'update',
+                    'table':'ClientMatters',
+                    'values':{
+                              'MatterDir':str(self.ui.currentDir.text())
+                              },
                     'params':{}
                     }
-        
+            
+            data['params']['ClientNum'] = self.ui.clientNum.text()
+            data['params']['MatterNum'] = self.ui.matterNum.text()
+            
             CONN.connect()
             CONN.saveData(data)
             CONN.closecnxn()
+    
+    def attachDocumentToMatter(self):
+        currentDir = self.ui.currentDir.text()
+        if currentDir == '':
+            currentDir = 'C:\\'
+        fullPathNameList = QtGui.QFileDialog.getOpenFileNames(self,'Attach Document(s)',currentDir ) 
+        
+        CONN.connect()
+        for fullPathName in fullPathNameList:
+                
+            filename = fullPathName.split("/")[-1]
+            if filename != '':
+                data = {'action':'new',
+                        'table':'OriginalDocuments',
+                        'values':{'ClientNum':self.ui.clientNum.text(),
+                                  'MatterNum':self.ui.matterNum.text(),
+                                  'DocName':str(filename),
+                                  'EFileDir':str(fullPathName)},
+                        'params':{}
+                        }
+        
+            CONN.saveData(data)
+            
+        CONN.closecnxn()
+        
         self.listDocuments()
         
     def deleteAttachment(self, path):
@@ -331,6 +392,7 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
                 self.action = None
                 self.lockWindow()
                 self.ui.actionEdit.setText('Edit')
+                self.loadMatter()
                 self.clearPartyFields()
                 
     def saveChanges(self):
@@ -347,7 +409,7 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
                 alert.setWindowTitle("Need Matter Type")
                 alert.exec_()
                 return
-            if self.ui.dateClosed.date().toPyDate() > self.ui.dateClosed.minimumDate().toPyDate() and self.ui.boxNumber().text() == '':
+            if self.ui.dateClosed.date().toPyDate() > self.ui.dateClosed.minimumDate().toPyDate() and self.ui.boxNumber.text() == '':
                 alert.setText("Closed matters require a box number.")
                 alert.setWindowTitle('Box Number Needed')
                 alert.exec_()
@@ -373,6 +435,8 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox)):
                           'BillingZip':self.ui.billZip.text(),
                           'DateOpened':str(self.ui.dateOpened.date().toPyDate()),
                           'AttorneyInitials':self.ui.attorneyInitials.text(),
+                          'EstateAssets':str(self.ui.assets.value()),
+                          'MatterDir':str(self.ui.currentDir.text()),
                           'MatterTypeID':str(mattertype)
                           },
                 'params':{}

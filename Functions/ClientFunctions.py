@@ -1,7 +1,7 @@
 from Functions import *
 
         
-def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, contactFilters):
+def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, contactFilters, deleted):
     v = []
     
     qSearchs = []
@@ -28,6 +28,11 @@ def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, cont
     if contactFilters != '':
         qSearchs.append(" (ci.Phone1 LIKE ? OR ci.Phone2 LIKE ? OR ci.Email LIKE ?) ")
         v.extend(['%'+contactFilters+'%','%'+contactFilters+'%','%'+contactFilters+'%'])
+        
+    if deleted:
+        qSearchs.append(" (ci.Deleted = 1) ")
+    else:
+        qSearchs.append(" (ci.Deleted <> 1 OR ci.Deleted IS NULL) ")
     
     if len(qSearchs) > 0:
         searches = ' WHERE {} '.format(" AND ".join(qSearchs))
@@ -43,8 +48,16 @@ def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, cont
     CONN.connect()
     data = CONN.readData(q,v)
     CONN.closecnxn()
+
     for r, i in enumerate(data.index):
         yield r, data.loc[i]
+        
+def getNextClientNum():
+    q = "SELECT MAX(ClientNum) +1  as nextnum FROM ClientInfo"
+    CONN.connect()
+    data = CONN.readData(q,[])
+    CONN.closecnxn()
+    return data
         
 def getClientInfo(clientNum):
     q = "SELECT * FROM ClientInfo WHERE ClientNum = ?"
@@ -55,6 +68,24 @@ def getClientInfo(clientNum):
     
     return data
 
+def compileDupeCheck(clientnum):
+    q = """
+    SELECT ClientNum
+        , FirstName, MiddleInitial, LastName
+        , Address1, Address2, City, State, ZipCode
+    FROM ClientInfo
+    WHERE ClientNum <> ?
+    """
+    v= [str(clientnum)]
+    CONN.connect()
+    data = CONN.readData(q,v)
+    CONN.closecnxn()
+    
+    data['fullname'] = data.firstname + ' ' + data.middleinitial + ' ' + data.lastname
+    data['fulladdr'] = data.address1 + ' ' + data.address2 + ' ' + data.city + ' ' + data.state + ' ' + data.zipcode
+    
+    return data
+
 def compileAdversePartyList():
     q = "SELECT * FROM AdverseParties"
     v = []
@@ -62,5 +93,4 @@ def compileAdversePartyList():
     data = CONN.readData(q,v)
     data['fullname'] = data.firstname + ' ' + data.middlename + ' ' + data.lastname
     CONN.closecnxn()
-    print(data)
     return data

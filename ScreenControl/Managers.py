@@ -1,8 +1,9 @@
 from UI import *
 from ScreenControl import *
 from Functions import UserFunctions as UsrFuncs, MatterFunctions as MtrFuncs, CONN
-from PyQt4.Qt import QListWidgetItem
-from os import getcwd
+from PyQt4.Qt import QListWidgetItem, QMessageBox
+import datetime as dt
+
 
 class MatterManager(QtGui.QFrame):
     def __init__(self):
@@ -303,6 +304,27 @@ class UserManager(QtGui.QFrame):
             
             self.ui.inactive.origInactive = int(userData.inactive) * 2
             self.ui.admin.origAdmin = int(userData.admin) * 2
+            
+
+class CleanUp(QtGui.QFrame):
+    def __init__(self):
+        QtGui.QFrame.__init__(self)
+        self.ui = loadUi("FileMaintenance", self)
         
+        self.ui.delDate.setDate(QtCore.QDate(dt.datetime.today().date() - dt.timedelta(days = 180)))
+        
+        self.ui.run.clicked.connect(self.startDeleting)
+        
+    def startDeleting(self):
+        reply = QtGui.QMessageBox.warning(self, "Caution: Deleting Permanently", "You are about to PERMANENTLY remove accounts and ALL the saved data related to those accounts.  Are you sure you want to continue?", 
+                                          QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        if reply == QtGui.QMessageBox.Yes:
+            delDate = self.ui.delDate.date().toPyDate()
+            UsrFuncs.cleanOutDeletedAccounts(delDate)
+            alert = QMessageBox()
+            alert.setWindowTitle("Complete")
+            alert.setText("Clean up completed")
+            alert.exec_()
+            return
         
     
