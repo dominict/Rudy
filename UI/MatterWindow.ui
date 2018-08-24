@@ -744,6 +744,39 @@ QToolButton#nextPage{
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>clientNum</tabstop>
+  <tabstop>matterNum</tabstop>
+  <tabstop>attorneyInitials</tabstop>
+  <tabstop>matterType</tabstop>
+  <tabstop>dateOpened</tabstop>
+  <tabstop>boxNumber</tabstop>
+  <tabstop>closed</tabstop>
+  <tabstop>dateClosed</tabstop>
+  <tabstop>assets</tabstop>
+  <tabstop>useClientAddress</tabstop>
+  <tabstop>firstName</tabstop>
+  <tabstop>lastName</tabstop>
+  <tabstop>middleInitial</tabstop>
+  <tabstop>addr1</tabstop>
+  <tabstop>addr2</tabstop>
+  <tabstop>billCity</tabstop>
+  <tabstop>billState</tabstop>
+  <tabstop>billZip</tabstop>
+  <tabstop>setDirectory</tabstop>
+  <tabstop>currentDir</tabstop>
+  <tabstop>attachDocument</tabstop>
+  <tabstop>documentList</tabstop>
+  <tabstop>apFirst</tabstop>
+  <tabstop>apMiddle</tabstop>
+  <tabstop>apLast</tabstop>
+  <tabstop>reason</tabstop>
+  <tabstop>apNew</tabstop>
+  <tabstop>apSave</tabstop>
+  <tabstop>apClear</tabstop>
+  <tabstop>apDelete</tabstop>
+  <tabstop>partyList</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

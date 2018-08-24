@@ -223,6 +223,15 @@ QIcon{background-color:rga(1,1,1);}</string>
           </item>
           <item>
            <widget class="QTableWidget" name="clientList">
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
             <attribute name="horizontalHeaderDefaultSectionSize">
              <number>75</number>
             </attribute>

@@ -42,7 +42,7 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.clearContent.clicked.connect(self.clearFields)
         self.ui.editClient.clicked.connect(self.editUser)
         self.ui.saveClientChanges.clicked.connect(self.saveChanges)
-        self.ui.clientList.cellClicked.connect(self.loadClient)
+        self.ui.clientList.cellClicked.connect(self.loadClientRow)
         self.ui.addMatter.clicked.connect(partial(self.openMatterWindow, None))
         self.ui.reset.clicked.connect(self.resetFilters)
         self.ui.search.clicked.connect(self.listClients)
@@ -76,7 +76,6 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.phone2.setReadOnly(True)
         self.ui.email.setReadOnly(True)
         self.ui.notes.setReadOnly(True)
-        self.ui.spouseInfo.setEnabled(False)
         self.ui.donotrep.setEnabled(False)
         self.ui.addMatter.setEnabled(False)
         self.ui.deleteAccount.setEnabled(False)
@@ -102,7 +101,6 @@ class MainMatterScreen(QtGui.QMainWindow):
         self.ui.phone2.setReadOnly(False)
         self.ui.email.setReadOnly(False)
         self.ui.notes.setReadOnly(False)
-        self.ui.spouseInfo.setEnabled(True)
         self.ui.donotrep.setEnabled(True)
         self.ui.addMatter.setEnabled(False)
         
@@ -127,7 +125,6 @@ class MainMatterScreen(QtGui.QMainWindow):
             self.ui.phone2.clear()
             self.ui.email.clear()
             self.ui.notes.clear()
-            self.ui.spouseInfo.setEnabled(False)
             self.ui.donotrep.setCheckState(0)
             self.ui.matterList.setRowCount(0)
             
@@ -143,7 +140,11 @@ class MainMatterScreen(QtGui.QMainWindow):
             self.ui.clientNum.setReadOnly(True)
             
         else:
-            self.lockFields()
+            reply = checkChangesMade(self)
+            if reply == 0:
+                self.loadClient()
+                self.lockFields()
+                self.ui.addMatter.setEnabled(True)
             
     def startAddingNew(self):
         reply = checkChangesMade(self)
@@ -218,7 +219,7 @@ class MainMatterScreen(QtGui.QMainWindow):
             dupeDisp.append('Client #: {} - {} '.format(nameData.clientnum[i], nameData.fullname[i]))
         
         for j in addrData.index:
-            dupeDisp.append('{} {} - {}'.format(addrData.clientnum[j], addrData.fullname[j], addrData.fulladdr[j]))
+            dupeDisp.append('Client #: {} {} - {}'.format(addrData.clientnum[j], addrData.fullname[j], addrData.fulladdr[j]))
             
         if len(dupeDisp) > 0:
                
@@ -297,7 +298,7 @@ class MainMatterScreen(QtGui.QMainWindow):
                                   'City':str(self.ui.city.text()),
                                   'State':str(self.ui.state.currentText()),
                                   'ZipCode':str(self.ui.zipcode.text()),
-                                  'Married':str(int(self.ui.spouseInfo.isEnabled())),
+                                  'Married':str(int(self.ui.spouseInfo.isChecked())),
                                   'SpouseFirstName':str(self.ui.firstName_2.text()),
                                   'SpouseLastName':str(self.ui.lastName_2.text()),
                                   'SpouseMiddleInitial':str(self.ui.middleInitial_2.text()),
@@ -351,48 +352,53 @@ class MainMatterScreen(QtGui.QMainWindow):
                     QtGui.QLabel(data.zipcode)]
             populateTableRow(self.ui.clientList, r, cols)
             
-    def loadClient(self,row,col):
+    def loadClientRow(self,row,col):
         reply = checkChangesMade(self)
         if reply == 0:
             self.changes = False
-            data = self.ui.clientList.cellWidget(row,0).cdata
-            self.ui.clientNum.setText(str(data.clientnum))
-            self.ui.firstName.setText(data.firstname)
-            self.ui.lastName.setText(data.lastname)
-            self.ui.middleInitial.setText(data.middleinitial)
-            self.ui.addr1.setText(data.address1)
-            self.ui.addr2.setText(data.address2)
-            self.ui.city.setText(data.city)
+            self.data = self.ui.clientList.cellWidget(row,0).cdata
+            self.loadClient()
             
-            ind = self.ui.state.findData(data.state)
-            if ind > 0:
-                self.ui.state.setCurrentIndex(ind)
+    def loadClient(self):
+        
+        self.ui.clientNum.setText(str(self.data.clientnum))
+        self.ui.firstName.setText(self.data.firstname)
+        self.ui.lastName.setText(self.data.lastname)
+        self.ui.middleInitial.setText(self.data.middleinitial)
+        self.ui.addr1.setText(self.data.address1)
+        self.ui.addr2.setText(self.data.address2)
+        self.ui.city.setText(self.data.city)
+        
+        ind = self.ui.state.findData(self.data.state)
+        if ind > 0:
+            self.ui.state.setCurrentIndex(ind)
 
-            self.ui.zipcode.setText(data.zipcode)
-            self.ui.firstName_2.setText(data.spousefirstname)
-            self.ui.lastName_2.setText(data.spouselastname)
-            self.ui.middleInitial_2.setText(data.spousemiddleinitial)
-            self.ui.phone1.setText(data.phone1)
-            self.ui.phone2.setText(data.phone2)
-            self.ui.email.setText(data.email)
-            self.ui.notes.setText(data.notes)
-            self.ui.spouseInfo.setEnabled(int(data.married) == 1)
-            self.ui.donotrep.setCheckState(int(data.donotrep) * 2)
-            
-            if data.deleted == 1:
-                self.ui.deleteAccount.setText("Restore")
-                self.ui.deleteAccount.setIcon(QtGui.QIcon(alertIcon))
-                self.ui.deleteAccount.actionDate = 'NULL'
-                self.ui.deleteAccount.delAction = '0'
-            else:
-                self.ui.deleteAccount.setText("Delete")
-                self.ui.deleteAccount.setIcon(QtGui.QIcon(deleteIcon))
-                self.ui.deleteAccount.delAction = '1'
-                self.ui.deleteAccount.actionDate = str(dt.today().date())
-            
-            self.ui.addMatter.setEnabled(True)
-            
-            self.listMatters(data.clientnum)
+        self.ui.zipcode.setText(self.data.zipcode)
+        self.ui.firstName_2.setText(self.data.spousefirstname)
+        self.ui.lastName_2.setText(self.data.spouselastname)
+        self.ui.middleInitial_2.setText(self.data.spousemiddleinitial)
+        self.ui.phone1.setText(self.data.phone1)
+        self.ui.phone2.setText(self.data.phone2)
+        self.ui.email.setText(self.data.email)
+        self.ui.notes.setText(self.data.notes)
+        
+        self.ui.spouseInfo.setChecked(int(self.data.married) == 1)
+        self.ui.donotrep.setCheckState(int(self.data.donotrep) * 2)
+        
+        if self.data.deleted == 1:
+            self.ui.deleteAccount.setText("Restore")
+            self.ui.deleteAccount.setIcon(QtGui.QIcon(alertIcon))
+            self.ui.deleteAccount.actionDate = 'NULL'
+            self.ui.deleteAccount.delAction = '0'
+        else:
+            self.ui.deleteAccount.setText("Delete")
+            self.ui.deleteAccount.setIcon(QtGui.QIcon(deleteIcon))
+            self.ui.deleteAccount.delAction = '1'
+            self.ui.deleteAccount.actionDate = str(dt.today().date())
+        
+        self.ui.addMatter.setEnabled(True)
+        
+        self.listMatters(self.data.clientnum)
             
     def listMatters(self, clientnum):
         

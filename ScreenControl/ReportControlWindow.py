@@ -3,6 +3,7 @@ from UI import *
 from Functions import ReportFuncs as rFunc
 import xlwt, datetime as dt
 from subprocess import Popen
+from _sqlite3 import Row
 
 class ReportingControls(QtGui.QFrame):
     
@@ -29,7 +30,7 @@ class ReportingControls(QtGui.QFrame):
     def resetParameters(self):
         self.columns = []
         self.selections = []
-        self.ui.activeFilters.clear()
+        self.ui.activeFilters.setRowCount(0)
         self.fillTreeWidgets()
         self.clearDisplay()
         
@@ -105,13 +106,28 @@ class ReportingControls(QtGui.QFrame):
             
         
     def addFilter(self,colName,alias):
-        item = QtGui.QListWidgetItem()
         
-        filterWidget = ReportFilter(self, colName, item,alias)
-        filterWidget.resize(200,50)
-        item.setSizeHint(filterWidget.sizeHint())
-        self.ui.activeFilters.addItem(item)
-        self.ui.activeFilters.setItemWidget(item,filterWidget)
+        row = self.ui.activeFilters.rowCount()
+        
+        removeMe = Deleter(self, row)
+        
+        label = QtGui.QLabel(colName)
+        label.selection = '{}.{}'.format(alias,colName)
+        
+        test = ReportTest()
+        
+        value = QtGui.QLineEdit()
+        
+        cols = [removeMe, label, test, value]
+        
+        self.ui.activeFilters.insertRow(row)
+        for c, col in enumerate(cols):
+            self.ui.activeFilters.setCellWidget(row,c,col)
+
+    def removeFilter(self,row):
+        self.ui.activeFilters.removeRow(row)
+        for newRow in range(self.ui.activeFilters.rowCount()):
+            self.ui.activeFilters.cellWidget(newRow,0).updateRow(newRow)
         
     def runReport(self):
         
@@ -119,11 +135,15 @@ class ReportingControls(QtGui.QFrame):
             
             filterList = []
             values = []
-            for c in range(self.ui.activeFilters.count()):
-                item = self.ui.activeFilters.item(c)
-                widget = self.ui.activeFilters.itemWidget(item)
-                filterList.append("{} {} ?".format(widget.label.selection, widget.compareBox.currentText()))
-                values.append(widget.value.text())
+            for r in range(self.ui.activeFilters.rowCount()):
+                
+                label = self.ui.activeFilters.cellWidget(r,1)
+                test = self.ui.activeFilters.cellWidget(r,2)
+                testSymbol = test.itemData(test.currentIndex())
+                value = self.ui.activeFilters.cellWidget(r,3)
+                
+                filterList.append("{} {} ?".format(label.selection, testSymbol))
+                values.append(value.text())
             filters = ' AND '.join(filterList)
             
             if len(filters) > 0:
@@ -205,3 +225,39 @@ class ReportFilter(QtGui.QFrame):
         row = self.parent.ui.activeFilters.row(self.item)
         taken = self.parent.ui.activeFilters.takeItem(row)
         del(taken)
+        
+class Deleter(QtGui.QToolButton):
+    def __init__(self,parent,row):
+        QtGui.QToolButton.__init__(self)
+        self.row = row
+        self.parent = parent
+        
+        self.setIcon(QtGui.QIcon(deleteIcon))
+        
+        self.clicked.connect(self.removeFilter)
+        
+    def updateRow(self,newRow):
+        self.row = newRow
+        
+    def removeFilter(self):
+        self.parent.removeFilter(self.row)
+        
+        
+class ReportTest(QtGui.QComboBox):
+    
+    def __init__(self):
+        QtGui.QComboBox.__init__(self)
+        
+        compares = [['Equal To','='],
+                    ['Not Equal To','<>'],
+                    ['Greater Than', '>'],
+                    ['Grtr. Than or Equal', '>='],
+                    ['Less Than', '<'],
+                    ['Less Than or Equal', '<='],
+                    ['Text Contains','LIKE'],
+                    ['Text Does Not Contain','NOT LIKE']]
+        for n, ij in enumerate(compares):
+            i, j = ij[0],ij[1]
+            self.addItem(i)
+            self.setItemData(n, j)
+        

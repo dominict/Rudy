@@ -67,7 +67,7 @@ def demo(func):
                                    'LastName TEXT',
                                    'MiddleName TEXT',
                                    'ReasonDescription TEXT',
-                                   'PartyID INTEGER PRIMARY KEY']}
+                                   'PartyID INTEGER PRIMARY KEY NOT NULL']}
         for table in tables.keys():
             cols = ','.join(tables[table]).lower()
             userTable = "CREATE TABLE IF NOT EXISTS {} ({}) ".format(table,cols)

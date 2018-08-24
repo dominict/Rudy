@@ -53,7 +53,7 @@ class ClientMatter(QtGui.QMainWindow):
             execStr = """
 widget = self.ui.{}
 if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.QDateEdit)):
-    if (widget not in list([self.ui.apFirst,self.ui.apLast, self.ui.apMiddle, self.ui.reason])): 
+    if (widget not in list([self.ui.apFirst,self.ui.apLast, self.ui.apMiddle, self.ui.reason,self.ui.setDirectory])): 
         initializeChangeTracking(self,widget)""".format(i)
             exec(execStr)
         
@@ -113,6 +113,13 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
         self.ui.apDelete.setEnabled(False)
         self.ui.apClear.setEnabled(False)
         self.ui.apNew.setEnabled(False)
+        
+        
+        self.ui.apNew.setEnabled(False)
+        self.ui.apFirst.setEnabled(False)
+        self.ui.apMiddle.setEnabled(False)
+        self.ui.apLast.setEnabled(False)
+        self.ui.reason.setEnabled(False)
         
     def loadMatter(self):
         self.lockWindow()
@@ -293,6 +300,7 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
     
     def addAdverseParty(self):
         self.ui.apFirst.action = 'new'
+        
         self.ui.apFirst.setReadOnly(False)
         self.ui.apMiddle.setReadOnly(False)
         self.ui.apLast.setReadOnly(False)
@@ -421,55 +429,58 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
                     alert.exec_()
                     return
             
-        mattertype = self.ui.matterType.itemData(self.ui.matterType.currentIndex())
-        
-        data = {'action':self.action,
-                'table':'ClientMatters',
-                'values':{'FirstName':self.ui.firstName.text(),
-                          'LastName':self.ui.lastName.text(),
-                          'MiddleInitial':self.ui.middleInitial.text(),
-                          'BillingAddr1':self.ui.addr1.text(),
-                          'BillingAddr2':self.ui.addr2.text(),
-                          'BillingCity':self.ui.billCity.text(),
-                          'BillingState':self.ui.billState.currentText(),
-                          'BillingZip':self.ui.billZip.text(),
-                          'DateOpened':str(self.ui.dateOpened.date().toPyDate()),
-                          'AttorneyInitials':self.ui.attorneyInitials.text(),
-                          'EstateAssets':str(self.ui.assets.value()),
-                          'MatterDir':str(self.ui.currentDir.text()),
-                          'MatterTypeID':str(mattertype)
-                          },
-                'params':{}
-                }
-        
-        if self.ui.dateClosed.date().toPyDate() > self.ui.dateClosed.minimumDate().toPyDate():
-            data['values']['DateClosed'] = str(self.ui.dateClosed.date().toPyDate())
-            data['values']['BoxNumber'] = self.ui.boxNumber.text()
+            mattertype = self.ui.matterType.itemData(self.ui.matterType.currentIndex())
             
-        if self.action == 'new':
-            key = 'values'
-        else:
-            key = 'params'
-        data[key]['ClientNum'] = self.ui.clientNum.text()
-        data[key]['MatterNum'] = self.ui.matterNum.text()
-        
-        CONN.connect()
-        CONN.saveData(data)
-        CONN.closecnxn()
-        
-        self.changes = False
-        self.action = None
-        self.lockWindow()
-        alert.setText("Save Complete")
-        alert.setWindowTitle("Save")
-        alert.exec_()
-        
-        self.ui.attachDocument.setEnabled(True)
-        self.ui.apSave.setEnabled(True)
-        self.ui.apNew.setEnabled(True)
-        self.ui.apClear.setEnabled(True)
-        
-        self.client.listMatters(self.clientnum)
+            data = {'action':self.action,
+                    'table':'ClientMatters',
+                    'values':{'FirstName':self.ui.firstName.text(),
+                              'LastName':self.ui.lastName.text(),
+                              'MiddleInitial':self.ui.middleInitial.text(),
+                              'BillingAddr1':self.ui.addr1.text(),
+                              'BillingAddr2':self.ui.addr2.text(),
+                              'BillingCity':self.ui.billCity.text(),
+                              'BillingState':self.ui.billState.currentText(),
+                              'BillingZip':self.ui.billZip.text(),
+                              'DateOpened':str(self.ui.dateOpened.date().toPyDate()),
+                              'AttorneyInitials':self.ui.attorneyInitials.text(),
+                              'EstateAssets':str(self.ui.assets.value()),
+                              'MatterDir':str(self.ui.currentDir.text()),
+                              'MatterTypeID':str(mattertype)
+                              },
+                    'params':{}
+                    }
+            
+            if self.ui.dateClosed.date().toPyDate() > self.ui.dateClosed.minimumDate().toPyDate():
+                data['values']['DateClosed'] = str(self.ui.dateClosed.date().toPyDate())
+                data['values']['BoxNumber'] = self.ui.boxNumber.text()
+                
+            if self.action == 'new':
+                key = 'values'
+            else:
+                key = 'params'
+            data[key]['ClientNum'] = self.ui.clientNum.text()
+            data[key]['MatterNum'] = self.ui.matterNum.text()
+            
+            CONN.connect()
+            CONN.saveData(data)
+            CONN.closecnxn()
+            
+            self.changes = False
+            self.action = None
+            self.lockWindow()
+            alert.setText("Save Complete")
+            alert.setWindowTitle("Save")
+            alert.exec_()
+            
+            self.ui.attachDocument.setEnabled(True)
+            self.ui.apSave.setEnabled(True)
+            self.ui.apNew.setEnabled(True)
+            self.ui.apClear.setEnabled(True)
+            self.ui.setDirectory.setEnabled(True)
+            
+            self.ui.actionEdit.setText('Edit')
+            
+            self.client.listMatters(self.clientnum)
         
     def populateClientAddress(self):
         clientInfo = ClntFuncs.getClientInfo(self.clientnum)
