@@ -1,11 +1,15 @@
 import pypyodbc as odbc
 import sqlite3, os
+from getpass import getuser
 
 DEMO = 1
+PATH = 'C:\\Users\\{}\\Documents\\RudyExports'.format(getuser())
+if not os.path.isdir(PATH):
+    os.makedirs(PATH)
 
 def demo(func):
     def initialize(*args, **kwargs): 
-        conn = sqlite3.connect('NortonAbert.db')
+        conn = sqlite3.connect(PATH+'\\NortonAbert.db')
         cursor = conn.cursor()
         tables = {'UserParam':['username TEXT',
                          'password TEXT',
@@ -67,7 +71,7 @@ def demo(func):
                                    'LastName TEXT',
                                    'MiddleName TEXT',
                                    'ReasonDescription TEXT',
-                                   'PartyID INTEGER PRIMARY KEY NOT NULL']}
+                                   'PartyID INTEGER PRIMARY KEY']}
         for table in tables.keys():
             cols = ','.join(tables[table]).lower()
             userTable = "CREATE TABLE IF NOT EXISTS {} ({}) ".format(table,cols)

@@ -6,7 +6,7 @@ class Connection:
     
     def connect(self, driver = "{SQL Server}",
                     server = None,
-                    database = "NortonAbert",
+                    database = PATH + "\\NortonAbert.db",
                     username = "",
                     pwd = "",
                     auto_commit = True):
@@ -16,7 +16,7 @@ class Connection:
             self.closecnxn()
             
         if DEMO == 1:
-            self.cnxn = sqlite3.connect('NortonAbert.db')
+            self.cnxn = sqlite3.connect(database)
         else:
             string = "DRIVER="+driver+";SERVER="+server+";DATABASE="+database+";UID="+username+";PWD="+pwd
             self.cnxn = odbc.connect(string,autocommit = auto_commit)

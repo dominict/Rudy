@@ -8,9 +8,9 @@ from UI.ManageUsers import Ui_ManageUsers
 from UI.MatterWindow import Ui_MatterWindow
 from UI.ReportWindow import Ui_ReportFrame
 from UI.FileMaintenance import Ui_FileMaint
-import os
+# import os
 
-UIDir = os.getcwd()+'\\UI'
+UIDir = '.\\UI'
 icoDir = UIDir+'\\Icons\\'
 
 saveIcon = icoDir+"save.ico"

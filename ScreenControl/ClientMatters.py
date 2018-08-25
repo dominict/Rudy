@@ -5,8 +5,7 @@ from ScreenControl import *
 from datetime import datetime as dt
 from subprocess import Popen
 from re import sub
-from os import getcwd
-from test.test_iterlen import NoneLengthHint
+# from os import getcwd
 from PyQt4.Qt import QMessageBox
 
 class ClientMatter(QtGui.QMainWindow):

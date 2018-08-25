@@ -3,7 +3,8 @@ from UI import *
 from Functions import ReportFuncs as rFunc
 import xlwt, datetime as dt
 from subprocess import Popen
-from _sqlite3 import Row
+import os
+from getpass import getuser
 
 class ReportingControls(QtGui.QFrame):
     
@@ -171,7 +172,9 @@ class ReportingControls(QtGui.QFrame):
     def exportReport(self):
         if self.data is not None:
             exportDT = str(dt.datetime.today().date())
-            filename = 'ReportExport_{}.xls'.format(exportDT)
+            if not os.path.isdir('C:\\Users\\{}\\Documents\\RudyExports'.format(getuser())):
+                os.makedirs('C:\\Users\\{}\\Documents\\RudyExports'.format(getuser()))
+            filename = 'C:\\Users\\{}\\Documents\\RudyExports\\'.format(getuser()) + 'ReportExport_{}.xls'.format(exportDT)
             book = xlwt.Workbook()
             sheet1 = book.add_sheet('Data_Export')
             
