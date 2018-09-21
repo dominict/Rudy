@@ -2,7 +2,7 @@ import pypyodbc as odbc
 import sqlite3, os
 from getpass import getuser
 
-DEMO = 1
+DEMO = 0
 PATH = 'C:\\Users\\{}\\Documents\\RudyExports'.format(getuser())
 if not os.path.isdir(PATH):
     os.makedirs(PATH)

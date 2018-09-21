@@ -8,7 +8,7 @@ def listMatters(activeOnly = True):
         where = ""
     
     q = """
-    SELECT * FROM MatterTypes {}
+    SELECT * FROM [NortonAbert].[dbo].MatterTypes {}
     """.format(where)
     
     CONN.connect()
@@ -18,7 +18,7 @@ def listMatters(activeOnly = True):
     return data
 
 def checkValidMatterNumber(clientnum, matternum):
-    q = "SELECT * FROM ClientMatters WHERE ClientNum = ? AND MatterNum = ?"
+    q = "SELECT * FROM [NortonAbert].[dbo].ClientMatters WHERE ClientNum = ? AND MatterNum = ?"
     v = [str(clientnum),str(matternum)]
     CONN.connect()
     data = CONN.readData(q,v)
@@ -28,8 +28,8 @@ def checkValidMatterNumber(clientnum, matternum):
 
 def generateClientMatters(clientnum):
     q = """SELECT  cm.*, mt.matterdescr
-            FROM ClientMatters cm 
-                LEFT JOIN MatterTypes mt on cm.mattertypeid = mt.typeid 
+            FROM [NortonAbert].[dbo].ClientMatters cm 
+                LEFT JOIN [NortonAbert].[dbo].MatterTypes mt on cm.mattertypeid = mt.typeid 
             WHERE cm.ClientNum = ?"""
     v = [str(clientnum)]
     
@@ -43,7 +43,7 @@ def generateClientMatters(clientnum):
 def nextMatterNum(clientNum):
     q = """
     SELECT MAX(CAST( MatterNum as INT)) +1 as next_matter
-    FROM ClientMatters
+    FROM [NortonAbert].[dbo].ClientMatters
     WHERE ClientNum = ? 
     """
     v = [str(clientNum)]
@@ -52,7 +52,7 @@ def nextMatterNum(clientNum):
     CONN.closecnxn()
     
     if data.next_matter[0] is None:
-        nextNum = '01'
+        nextNum = '00'
     else:
         numForm = '00'
         number = str(data.next_matter[0])
@@ -63,8 +63,8 @@ def nextMatterNum(clientNum):
 
 def findMatter(matternum):
     q = """SELECT cm.*, mt.matterdescr
-            FROM ClientMatters cm 
-                INNER JOIN MatterTypes mt on cm.mattertypeid = mt.typeid
+            FROM [NortonAbert].[dbo].ClientMatters cm 
+                INNER JOIN [NortonAbert].[dbo].MatterTypes mt on cm.mattertypeid = mt.typeid
             WHERE MatterNum = ?"""
     v = [str(matternum)]
     CONN.connect()
@@ -74,7 +74,7 @@ def findMatter(matternum):
     return data
 
 def generateAdverPartyList(clientnum,matternum):
-    q = "SELECT * FROM AdverseParties WHERE ClientNum = ? AND MatterNum = ?"
+    q = "SELECT * FROM [NortonAbert].[dbo].AdverseParties WHERE ClientNum = ? AND MatterNum = ?"
     v = [str(clientnum),str(matternum)]
     CONN.connect()
     data = CONN.readData(q,v)
@@ -84,7 +84,7 @@ def generateAdverPartyList(clientnum,matternum):
         yield r, data.loc[i]
         
 def generateDocumentList(clientnum, matternum):
-    q = "SELECT * FROM OriginalDocuments WHERE ClientNum = ? AND MatterNum = ?"
+    q = "SELECT * FROM [NortonAbert].[dbo].OriginalDocuments WHERE ClientNum = ? AND MatterNum = ?"
     v = [str(clientnum),str(matternum)]
     CONN.connect()
     data = CONN.readData(q,v)

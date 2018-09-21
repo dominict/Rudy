@@ -157,9 +157,11 @@ class MainMatterScreen(QtGui.QMainWindow):
                 self.ui.clientNum.setText(str(clientnum.nextnum[0]))
             else:
                 self.ui.clientNum.setText(str(1))
-                
+            
+            self.ui.deleteAccount.delAction = '0'
             self.ui.saveClientChanges.setEnabled(True)
             self.ui.addMatter.setEnabled(False)
+            self.ui.deleteAccount.setEnabled(False)
             
     def checkName(self):
         apData = ClntFuncs.compileAdversePartyList()
@@ -247,7 +249,9 @@ class MainMatterScreen(QtGui.QMainWindow):
                 
             
 
-            if reply == QtGui.QMessageBox.Yes:                                      
+            if reply == QtGui.QMessageBox.Yes:        
+                if self.ui.deleteAccount.actionDate is None:
+                    self.ui.deleteAccount.actionDate = ''                              
                 data = {'action':self.action,
                         'table':'ClientInfo',
                         'values':{'Deleted':str(self.ui.deleteAccount.delAction),
@@ -255,7 +259,7 @@ class MainMatterScreen(QtGui.QMainWindow):
                                   },
                         'params':{'ClientNum':str(self.ui.clientNum.text())}
                     }
-                
+
                 CONN.connect()
                 CONN.saveData(data)
                 CONN.closecnxn()
@@ -289,34 +293,37 @@ class MainMatterScreen(QtGui.QMainWindow):
                 return
             else:
                 data = {'action':self.action,
-                        'table':'ClientInfo',
-                        'values':{'FirstName':str(self.ui.firstName.text()),
-                                  'LastName':str(self.ui.lastName.text()),
-                                  'MiddleInitial':str(self.ui.middleInitial.text()),
-                                  'Address1':str(self.ui.addr1.text()),
-                                  'Address2':str(self.ui.addr2.text()),
-                                  'City':str(self.ui.city.text()),
+                        'table':'[NortonAbert].[dbo].[ClientInfo]',
+                        'values':{'FirstName':str(self.ui.firstName.text()).strip(),
+                                  'LastName':str(self.ui.lastName.text()).strip(),
+                                  'MiddleInitial':str(self.ui.middleInitial.text()).strip(),
+                                  'Address1':str(self.ui.addr1.text()).strip(),
+                                  'Address2':str(self.ui.addr2.text()).strip(),
+                                  'City':str(self.ui.city.text()).strip(),
                                   'State':str(self.ui.state.currentText()),
-                                  'ZipCode':str(self.ui.zipcode.text()),
+                                  'ZipCode':str(self.ui.zipcode.text()).strip(),
                                   'Married':str(int(self.ui.spouseInfo.isChecked())),
-                                  'SpouseFirstName':str(self.ui.firstName_2.text()),
-                                  'SpouseLastName':str(self.ui.lastName_2.text()),
-                                  'SpouseMiddleInitial':str(self.ui.middleInitial_2.text()),
-                                  'Phone1':str(self.ui.phone1.text()),
-                                  'Phone2':str(self.ui.phone2.text()),
-                                  'Email':str(self.ui.email.text()),
-                                  'Notes':str(self.ui.notes.toPlainText()),
-                                  'DoNotRep':str(int(self.ui.donotrep.checkState()) / 2)},
+                                  'SpouseFirstName':str(self.ui.firstName_2.text()).strip(),
+                                  'SpouseLastName':str(self.ui.lastName_2.text()).strip(),
+                                  'SpouseMiddleInitial':str(self.ui.middleInitial_2.text()).strip(),
+                                  'Phone1':str(self.ui.phone1.text()).strip(),
+                                  'Phone2':str(self.ui.phone2.text()).strip(),
+                                  'Email':str(self.ui.email.text()).strip(),
+                                  'Notes':str(self.ui.notes.toPlainText()).strip(),
+                                  'DoNotRep':str(int(self.ui.donotrep.checkState() / 2))},
                         'params':{}
                         }
-                if self.action == 'new':key = 'values'
+                if self.action == 'new':
+                    key = 'values'
+                    data[key]['Deleted'] = str(0)
                 else:key = 'params'
                 
                 data[key]['ClientNum'] = str(self.ui.clientNum.text())
-                
+
                 CONN.connect()
                 CONN.saveData(data)
                 CONN.closecnxn()
+                
                 self.changes = False
                 self.listClients()
                 self.lockFields()
@@ -345,7 +352,7 @@ class MainMatterScreen(QtGui.QMainWindow):
             clientlabel = QtGui.QLabel(str(data.clientnum))
             clientlabel.cdata = data
             cols = [clientlabel,
-                    QtGui.QLabel("{0}, {1}".format(data.lastname,data.firstname) ),
+                    QtGui.QLabel("{0}, {1}".format(data.lastname.strip(),data.firstname.strip()) ),
                     QtGui.QLabel(data.address1),
                     QtGui.QLabel(data.city),
                     QtGui.QLabel(data.state),
@@ -362,21 +369,21 @@ class MainMatterScreen(QtGui.QMainWindow):
     def loadClient(self):
         
         self.ui.clientNum.setText(str(self.data.clientnum))
-        self.ui.firstName.setText(self.data.firstname)
-        self.ui.lastName.setText(self.data.lastname)
-        self.ui.middleInitial.setText(self.data.middleinitial)
-        self.ui.addr1.setText(self.data.address1)
-        self.ui.addr2.setText(self.data.address2)
-        self.ui.city.setText(self.data.city)
+        self.ui.firstName.setText(self.data.firstname.strip())
+        self.ui.lastName.setText(self.data.lastname.strip())
+        self.ui.middleInitial.setText(self.data.middleinitial.strip())
+        self.ui.addr1.setText(self.data.address1.strip())
+        self.ui.addr2.setText(self.data.address2.strip())
+        self.ui.city.setText(self.data.city.strip())
         
         ind = self.ui.state.findData(self.data.state)
         if ind > 0:
             self.ui.state.setCurrentIndex(ind)
 
         self.ui.zipcode.setText(self.data.zipcode)
-        self.ui.firstName_2.setText(self.data.spousefirstname)
-        self.ui.lastName_2.setText(self.data.spouselastname)
-        self.ui.middleInitial_2.setText(self.data.spousemiddleinitial)
+        self.ui.firstName_2.setText(self.data.spousefirstname.strip())
+        self.ui.lastName_2.setText(self.data.spouselastname.strip())
+        self.ui.middleInitial_2.setText(self.data.spousemiddleinitial.strip())
         self.ui.phone1.setText(self.data.phone1)
         self.ui.phone2.setText(self.data.phone2)
         self.ui.email.setText(self.data.email)
@@ -388,7 +395,7 @@ class MainMatterScreen(QtGui.QMainWindow):
         if self.data.deleted == 1:
             self.ui.deleteAccount.setText("Restore")
             self.ui.deleteAccount.setIcon(QtGui.QIcon(alertIcon))
-            self.ui.deleteAccount.actionDate = 'NULL'
+            self.ui.deleteAccount.actionDate = ''
             self.ui.deleteAccount.delAction = '0'
         else:
             self.ui.deleteAccount.setText("Delete")
@@ -441,6 +448,7 @@ class MainMatterScreen(QtGui.QMainWindow):
             self.matter.show()
     
     def openManager(self, manager):
+        print(self.activeUser)
         if self.activeUser is not None:
             if self.activeUser.admin == 1:
                 self.mgr = manager()

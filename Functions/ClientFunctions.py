@@ -40,7 +40,7 @@ def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, cont
         searches = ''
     q = """
     SELECT ci.* 
-    FROM ClientInfo ci 
+    FROM [NortonAbert].[dbo].[ClientInfo] ci 
     {}
     ORDER BY ci.clientnum asc
     """.format(searches)
@@ -53,14 +53,14 @@ def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, cont
         yield r, data.loc[i]
         
 def getNextClientNum():
-    q = "SELECT MAX(ClientNum) +1  as nextnum FROM ClientInfo"
+    q = "SELECT MAX(ClientNum) +1  as nextnum FROM [NortonAbert].[dbo].ClientInfo"
     CONN.connect()
     data = CONN.readData(q,[])
     CONN.closecnxn()
     return data
         
 def getClientInfo(clientNum):
-    q = "SELECT * FROM ClientInfo WHERE ClientNum = ?"
+    q = "SELECT * FROM [NortonAbert].[dbo].ClientInfo WHERE ClientNum = ?"
     v = [str(clientNum)]
     CONN.connect()
     data = CONN.readData(q,v)
@@ -73,7 +73,7 @@ def compileDupeCheck(clientnum):
     SELECT ClientNum
         , FirstName, MiddleInitial, LastName
         , Address1, Address2, City, State, ZipCode
-    FROM ClientInfo
+    FROM [NortonAbert].[dbo].ClientInfo
     WHERE ClientNum <> ?
     """
     v= [str(clientnum)]
@@ -87,7 +87,7 @@ def compileDupeCheck(clientnum):
     return data
 
 def compileAdversePartyList():
-    q = "SELECT * FROM AdverseParties"
+    q = "SELECT * FROM [NortonAbert].[dbo].AdverseParties"
     v = []
     CONN.connect()
     data = CONN.readData(q,v)

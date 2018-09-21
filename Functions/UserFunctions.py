@@ -3,9 +3,9 @@ from Functions import *
 def validateUserChange(username):
     
     q = """ 
-    SELECT (SELECT COUNT(username) userck FROM UserParam WHERE username = ?) as usrchk
-        , (SELECT COUNT(1) admins FROM UserParam WHERE Admin = 1 AND Inactive = 0) as admchk
-        , (SELECT COUNT(1) as actives FROM UserParam WHERE Inactive = 0) inactivechk
+    SELECT (SELECT COUNT(username) userck FROM [NortonAbert].[dbo].UserParam WHERE username = ?) as usrchk
+        , (SELECT COUNT(1) admins FROM [NortonAbert].[dbo].UserParam WHERE Admin = 1 AND Inactive = 0) as admchk
+        , (SELECT COUNT(1) as actives FROM [NortonAbert].[dbo].UserParam WHERE Inactive = 0) inactivechk
     
     """
     v = [username]
@@ -21,7 +21,7 @@ def getUserList(activeOnly = True):
         where = ' WHERE Inactive = 0 '
     else:
         where = ''
-    q = "SELECT * FROM UserParam {} ".format(where)
+    q = "SELECT * FROM [NortonAbert].[dbo].UserParam {} ".format(where)
     
     CONN.connect()
     data = CONN.readData(q,[])
@@ -33,15 +33,15 @@ def cleanOutDeletedAccounts(cutoffDate):
     
     q = """
     SELECT ClientNum
-    FROM ClientInfo
+    FROM [NortonAbert].[dbo].ClientInfo
     WHERE Deleted = 1 AND DeleteDate <= ?
     """
     v = [str(cutoffDate)]
     
-    q1 = "DELETE FROM OriginalDocuments WHERE ClientNum = ?"
-    q2 = "DELETE FROM ClientMatters WHERE ClientNum = ?"
-    q3 = "DELETE FROM ClientInfo WHERE ClientNum = ?"
-    q4 = "DELETE FROM AdverseParties WHERE ClientNum = ?"
+    q1 = "DELETE FROM [NortonAbert].[dbo].OriginalDocuments WHERE ClientNum = ?"
+    q2 = "DELETE FROM [NortonAbert].[dbo].ClientMatters WHERE ClientNum = ?"
+    q3 = "DELETE FROM [NortonAbert].[dbo].ClientInfo WHERE ClientNum = ?"
+    q4 = "DELETE FROM [NortonAbert].[dbo].AdverseParties WHERE ClientNum = ?"
     CONN.connect()
     data = CONN.readData(q,v)
     

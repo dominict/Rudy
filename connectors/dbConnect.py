@@ -4,11 +4,11 @@ class Connection:
     
     is_closed = True
     
-    def connect(self, driver = "{SQL Server}",
-                    server = None,
-                    database = PATH + "\\NortonAbert.db",
-                    username = "",
-                    pwd = "",
+    def connect(self, driver ="{SQL Server}", #  '{ODBC Driver 13 for SQL Server}',  #
+                    server = r'App1\SQLEXPRESS',
+                    database = "NortonAbert",
+                    username = "nortUser",
+                    pwd = "nortPassword123",
                     auto_commit = True):
         
         
