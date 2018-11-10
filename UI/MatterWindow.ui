@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>937</width>
+    <width>1095</width>
     <height>610</height>
    </rect>
   </property>
@@ -272,10 +272,7 @@ QToolButton#nextPage{
         <property name="flat">
          <bool>true</bool>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <property name="spacing">
-          <number>1</number>
-         </property>
+        <layout class="QGridLayout" name="gridLayout_2">
          <property name="leftMargin">
           <number>1</number>
          </property>
@@ -288,14 +285,7 @@ QToolButton#nextPage{
          <property name="bottomMargin">
           <number>1</number>
          </property>
-         <item>
-          <widget class="QToolButton" name="useClientAddress">
-           <property name="text">
-            <string>Same as Client</string>
-           </property>
-          </widget>
-         </item>
-         <item>
+         <item row="1" column="0">
           <widget class="QFrame" name="frame_2">
            <property name="styleSheet">
             <string notr="true">QFrame{ background-color: rgb(248, 233, 210); }</string>
@@ -436,6 +426,58 @@ QToolButton#nextPage{
                </widget>
               </item>
              </layout>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QToolButton" name="useClientAddress">
+           <property name="text">
+            <string>Same as Client</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QFrame" name="frame_4">
+           <property name="styleSheet">
+            <string notr="true">QFrame{ background-color: rgb(248, 233, 210); }</string>
+           </property>
+           <property name="frameShape">
+            <enum>QFrame::Panel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QFormLayout" name="formLayout_3">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Phone 1</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="phone1"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Phone 2</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="phone2"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_18">
+              <property name="text">
+               <string>Email</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="email"/>
             </item>
            </layout>
           </widget>
@@ -763,10 +805,9 @@ QToolButton#nextPage{
   <tabstop>billCity</tabstop>
   <tabstop>billState</tabstop>
   <tabstop>billZip</tabstop>
-  <tabstop>setDirectory</tabstop>
-  <tabstop>currentDir</tabstop>
-  <tabstop>attachDocument</tabstop>
-  <tabstop>documentList</tabstop>
+  <tabstop>phone1</tabstop>
+  <tabstop>phone2</tabstop>
+  <tabstop>email</tabstop>
   <tabstop>apFirst</tabstop>
   <tabstop>apMiddle</tabstop>
   <tabstop>apLast</tabstop>
@@ -776,6 +817,10 @@ QToolButton#nextPage{
   <tabstop>apClear</tabstop>
   <tabstop>apDelete</tabstop>
   <tabstop>partyList</tabstop>
+  <tabstop>documentList</tabstop>
+  <tabstop>setDirectory</tabstop>
+  <tabstop>currentDir</tabstop>
+  <tabstop>attachDocument</tabstop>
  </tabstops>
  <resources/>
  <connections/>

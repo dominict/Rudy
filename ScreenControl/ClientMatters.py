@@ -145,6 +145,10 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
         self.ui.addr1.setText(self.matter.billingaddr1)
         self.ui.addr2.setText(self.matter.billingaddr2)
         self.ui.billCity.setText(self.matter.billingcity)
+        
+        self.ui.phone1.setText(self.matter.matter_phone1)
+        self.ui.phone2.setText(self.matter.matter_phone2)
+        self.ui.email.setText(self.matter.matter_email)
        
         if self.matter.matterdir is not None:
             self.ui.currentDir.setText(self.matter.matterdir)
@@ -440,6 +444,9 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
                               'BillingCity':self.ui.billCity.text(),
                               'BillingState':self.ui.billState.currentText(),
                               'BillingZip':self.ui.billZip.text(),
+                              'Matter_Phone1':self.ui.phone1.text(),
+                              'Matter_Phone2':self.ui.phone2.text(),
+                              'Matter_Email':self.ui.email.text(),
                               'DateOpened':str(self.ui.dateOpened.date().toPyDate()),
                               'AttorneyInitials':self.ui.attorneyInitials.text(),
                               'EstateAssets':str(self.ui.assets.value()),
@@ -491,6 +498,9 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
         self.ui.addr2.setText(clientInfo.address2[0])
         self.ui.billCity.setText(clientInfo.city[0])
         self.ui.billZip.setText(clientInfo.zipcode[0])
+        self.ui.phone1.setText(clientInfo.phone1[0])
+        self.ui.phone2.setText(clientInfo.phone2[0])
+        self.ui.email.setText(clientInfo.email[0])
 
         ind = self.ui.billState.findData(clientInfo.state[0])
         if ind > 0:

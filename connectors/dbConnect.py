@@ -5,7 +5,7 @@ class Connection:
     is_closed = True
     
     def connect(self, driver ="{SQL Server}", #  '{ODBC Driver 13 for SQL Server}',  #
-                    server = r'App1\SQLEXPRESS',
+                    server = r'App1\SQLEXPRESS',#r'SMYTHEPC\SQLEXPRESS', #
                     database = "NortonAbert",
                     username = "nortUser",
                     pwd = "nortPassword123",

@@ -6,23 +6,25 @@ def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, cont
     
     qSearchs = []
     if firstNames != '':
-        qSearchs.append( " (ci.firstname LIKE ? OR ci.spousefirstname LIKE ? )")
-        v.extend(['%'+firstNames+'%','%'+firstNames+'%'])
+        qSearchs.append( " (ci.firstname LIKE ? OR ci.spousefirstname LIKE ? OR cm.firstname LIKE ? )")
+        v.extend(['%'+firstNames+'%','%'+firstNames+'%','%'+firstNames+'%', ])
         
     if lastNames != '':
-        qSearchs.append( " ( ci.lastname LIKE ? OR ci.spouselastname LIKE ? )" )
-        v.extend(['%'+lastNames+'%','%'+lastNames+'%'])
+        qSearchs.append( " ( ci.lastname LIKE ? OR ci.spouselastname LIKE ?  OR cm.lastname LIKE ?)" )
+        v.extend(['%'+lastNames+'%','%'+lastNames+'%','%'+lastNames+'%'])
         
     if addrFilter != '':
-        qSearchs.append("(ci.Address1 LIKE ? OR ci.Address2 LIKE ? )")
-        v.extend(['%'+addrFilter+'%','%'+addrFilter+'%'])
+        qSearchs.append("(ci.Address1 LIKE ? OR ci.Address2 LIKE ? OR cm.BillingAddr1 LIKE ? OR cm.BillingAddr2 LIKE ? )")
+        v.extend(['%'+addrFilter+'%','%'+addrFilter+'%','%'+addrFilter+'%','%'+addrFilter+'%'])
     
     if cityFilter != '':
-        qSearchs.append(" (ci.City LIKE ?)")
+        qSearchs.append(" (ci.City LIKE ? OR cm.BillingCity LIKE ?)")
+        v.append("%"+cityFilter+"%")
         v.append("%"+cityFilter+"%")
         
     if stateFilter != '':
-        qSearchs.append("(ci.State LIKE ? )")
+        qSearchs.append("(ci.State LIKE ? OR cm.BillingState LIKE ? )")
+        v.append("%"+stateFilter+"%")
         v.append("%"+stateFilter+"%")
     
     if contactFilters != '':
@@ -39,9 +41,14 @@ def listClients(firstNames, lastNames, addrFilter, cityFilter, stateFilter, cont
     else:
         searches = ''
     q = """
-    SELECT ci.* 
+    SELECT ci.*
+    FROM [NortonAbert].[dbo].[ClientInfo] ci
+    INNER JOIN (
+    SELECT DISTINCT ci.ClientNum
     FROM [NortonAbert].[dbo].[ClientInfo] ci 
+        LEFT JOIN [NortonAbert].[dbo].[ClientMatters] cm on ci.ClientNum = cm.ClientNum
     {}
+    ) cl on ci.ClientNum = cl.ClientNum
     ORDER BY ci.clientnum asc
     """.format(searches)
 
