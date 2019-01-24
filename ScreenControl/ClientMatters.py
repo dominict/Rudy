@@ -303,6 +303,7 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
     
     def addAdverseParty(self):
         self.ui.apFirst.action = 'new'
+        self.ui.apFirst.partyid = None
         
         self.ui.apFirst.setReadOnly(False)
         self.ui.apMiddle.setReadOnly(False)
@@ -344,7 +345,7 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
         reasonGiven = self.ui.reason.text()
         
         action = self.ui.apFirst.action
-        
+        print(action, type(action), action == 'new')
         if action is not None:
             partyid = self.ui.apFirst.partyid
             data = {'action':action,
@@ -470,6 +471,13 @@ if isinstance(widget,(QtGui.QLineEdit, QtGui.QComboBox, QtGui.QCheckBox, QtGui.Q
             CONN.connect()
             CONN.saveData(data)
             CONN.closecnxn()
+            
+            
+            self.ui.apNew.setEnabled(True)
+            self.ui.apFirst.setEnabled(True)
+            self.ui.apMiddle.setEnabled(True)
+            self.ui.apLast.setEnabled(True)
+            self.ui.reason.setEnabled(True)
             
             self.changes = False
             self.action = None
